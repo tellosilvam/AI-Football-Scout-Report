@@ -67,6 +67,7 @@ The **AI Football Scout Report** is a Streamlit-based web application that allow
 ```bash
 git clone https://github.com/tellosilvam/AI-Football-Scout-Report.git
 
-> 📌 **Note:** Don't forget to use your own Open AI API key.
-
 cd AI-Football-Scout-Report
+```
+> 📌 **Note:** Don't forget to use your own OpenAI API key.
+
