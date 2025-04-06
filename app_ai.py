@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
+import os
 from datetime import datetime
 from bs4 import BeautifulSoup
 from openai import OpenAI
