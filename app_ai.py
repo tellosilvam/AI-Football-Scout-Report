@@ -11,10 +11,11 @@ st.set_page_config(page_title="AI Football Scout", page_icon="⚽", layout="wide
 # Create API client
 @st.cache_resource
 def get_openai_client():
-    return OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key="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"
-    )
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        st.error("Missing OpenAI API key. Please set the OPENAI_API_KEY environment variable.")
+        st.stop()
+    return OpenAI(api_key=api_key)
 
 # Function to scrape player data
 def get_player_data(url):
