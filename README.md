@@ -1,7 +1,7 @@
 # 🤖⚽ AI Football Scout Report
 
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-red?logo=streamlit)](https://ai-football-scout-report.streamlit.app/)
-[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://github.com/tellosilvam/AI-Football-Scout-Report/blob/main/app_ai.py)
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://github.com/tellosilvam/AI-Football-Scout-Report/blob/main/app_ai.py)
 ![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-yellow?logo=pandas)
 ![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-Web%20Scraping-green?logo=beautifulsoup)
 ![OpenAI](https://img.shields.io/badge/Chat-GPT-4B00E0?logo=openai)
