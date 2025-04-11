@@ -7,7 +7,27 @@ from bs4 import BeautifulSoup
 from openai import OpenAI
 
 # Set page config
-st.set_page_config(page_title="AI Football Scout", page_icon="⚽", layout="wide")
+st.set_page_config(
+    page_title="AI Football Scout",
+    page_icon="⚽",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': "AI Football Scout - Powered by o3-mini"
+    }
+)
+
+# Set the default theme to dark mode
+st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #111;
+        }
+        [data-testid="stToolbar"] {
+            background-color: #111;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # Create API client
 @st.cache_resource
@@ -124,7 +144,7 @@ def generate_scouting_report(player_name, position, age, team, stats_df):
                 "content": prompt,
             }
         ],
-        model="gpt-4o-mini",
+        model="o3-mini",
         temperature=1,
         max_tokens=4096,
         top_p=1
@@ -180,7 +200,7 @@ def process_chat_with_scout_ai(user_question):
     client = get_openai_client()
     response = client.chat.completions.create(
         messages=st.session_state.chat_context,
-        model="gpt-4o-mini",
+        model="o3-mini",
         temperature=0.7,
         max_tokens=2048,
         top_p=1
@@ -330,15 +350,23 @@ with tab2:
         .chat-message {
             padding: 0.75rem;
             border-radius: 0.5rem;
-            margin-bottom: 0.5rem;  /* Reduced from 1rem */
+            margin-bottom: 0.5rem;
             display: flex;
             flex-direction: column;
         }
-        .chat-message.user {
+        /* Dark mode styles */
+        [data-theme="dark"] .chat-message.user {
             background-color: #26272F;
         }
-        .chat-message.assistant {
+        [data-theme="dark"] .chat-message.assistant {
             background-color: #101010;
+        }
+        /* Light mode styles */
+        [data-theme="light"] .chat-message.user {
+            background-color: #E9EBF1;
+        }
+        [data-theme="light"] .chat-message.assistant {
+            background-color: #FFFFFF;
         }
         .chat-message .avatar {
             width: 20px;
@@ -357,8 +385,8 @@ with tab2:
             margin-bottom: 0.5rem;
         }
         .stContainer {
-        margin-top: 0;
-        padding-top: 0;
+            margin-top: 0;
+            padding-top: 0;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -509,4 +537,4 @@ with tab2:
 
 # Footer
 st.markdown("---")
-st.caption("Data source: FBRef.com | AI powered by GPT-4o-mini")
+st.caption("Data source: FBRef.com | AI powered by o3-mini")
