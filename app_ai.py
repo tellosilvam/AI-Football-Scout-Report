@@ -17,18 +17,6 @@ st.set_page_config(
     }
 )
 
-# Set the default theme to dark mode
-st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {
-            background-color: #111;
-        }
-        [data-testid="stToolbar"] {
-            background-color: #111;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 # Create API client
 @st.cache_resource
 def get_openai_client():
