@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "AI Football Scout - Powered by GPT-4o-mini"
+        'About': "AI Football Scout - Powered by GPT-4.1 mini"
     }
 )
 
@@ -132,7 +132,7 @@ def generate_scouting_report(player_name, position, age, team, stats_df):
                 "content": prompt,
             }
         ],
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         temperature=1,
         max_tokens=4096,
         top_p=1
@@ -188,7 +188,7 @@ def process_chat_with_scout_ai(user_question):
     client = get_openai_client()
     response = client.chat.completions.create(
         messages=st.session_state.chat_context,
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         temperature=0.7,
         max_tokens=2048,
         top_p=1
@@ -525,4 +525,4 @@ with tab2:
 
 # Footer
 st.markdown("---")
-st.caption("Data source: FBRef.com | AI powered by GPT-4o-mini")
+st.caption("Data source: FBRef.com | AI powered by GPT-4.1 mini")
