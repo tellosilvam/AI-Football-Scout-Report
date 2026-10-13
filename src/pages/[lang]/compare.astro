@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompareView from '../../components/CompareView';
+import { isLang, t } from '../../lib/i18n';
+import { METRICS } from '../../lib/football/metrics';
+
+export const prerender = false;
+
+const { lang } = Astro.params;
+if (!isLang(lang)) return Astro.redirect('/en', 302);
+const d = t(lang);
+const id = (k: string) => Number(Astro.url.searchParams.get(k)) || null;
+const metricLabels = Object.fromEntries(METRICS.map((m) => [m.key, d.metrics[m.key] ?? m.label]));
+const categoryOf = Object.fromEntries(METRICS.map((m) => [m.key, d.categories[m.category]]));
+---
+
+<Base lang={lang} title={d.compare.title} active="compare">
+  <div class="wrap py-10 md:py-14">
+    <h1 class="display text-[clamp(3rem,9vw,6.5rem)]">{d.compare.title}</h1>
+    <div class="mt-8">
+      <CompareView
+        client:load
+        lang={lang}
+        initialA={id('a')}
+        initialB={id('b')}
+        strings={d.compare}
+        search={{ ...d.search, positions: d.positions }}
+        metricLabels={metricLabels}
+        categoryOf={categoryOf}
+        errorText={d.errors.generic}
+      />
+    </div>
+  </div>
+</Base>

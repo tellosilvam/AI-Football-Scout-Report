@@ -1,0 +1,100 @@
+---
+import Base from '../../layouts/Base.astro';
+import SearchBox from '../../components/SearchBox';
+import { isLang, t } from '../../lib/i18n';
+import { LEAGUES } from '../../lib/football/leagues';
+
+export const prerender = false;
+
+const { lang } = Astro.params;
+if (!isLang(lang)) return Astro.redirect('/en', 302);
+const d = t(lang);
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
+
+const searchStrings = { ...d.search, positions: d.positions };
+const stack = [
+  ['Astro 7', 'Server-rendered pages, React islands only where there is interaction'],
+  ['Vercel AI SDK 7', 'Structured output with Zod, streaming chat with tool calling'],
+  ['AI Gateway', 'Provider-agnostic model routing, Claude by default'],
+  ['API-Football', 'Live season stats, cached and warmed per league'],
+  ['Upstash Redis', 'Cache, league pools, rate limiting and usage counters'],
+  ['TypeScript + Vitest', 'Typed end to end; guard and percentile maths under test'],
+];
+---
+
+<Base lang={lang} active="search">
+  <!-- Hero: the search is the product, so it is the hero -->
+  <section class="pitch-lines relative overflow-hidden border-b border-line" style="background-position: center bottom; background-size: 100% 100%">
+    <div class="wrap relative pb-20 pt-16 md:pb-28 md:pt-24">
+      <h1 class="display whitespace-pre-line text-[clamp(3.6rem,12vw,10.5rem)]">{d.landing.title}</h1>
+      <p class="prose-measure mt-6 text-lg text-chalk-dim md:text-xl">{d.landing.lead}</p>
+      <div class="mt-10 max-w-2xl">
+        <SearchBox client:load lang={lang} strings={searchStrings} size="lg" />
+      </div>
+      <p class="mt-4 text-sm">
+        <a href={`/${lang}/discover`} class="text-chalk-dim underline decoration-line underline-offset-4 hover:text-chalk">{d.landing.discoverCta}</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- How it works: a real sequence, so it is numbered -->
+  <section class="wrap py-16 md:py-24" aria-labelledby="how">
+    <h2 id="how" class="display text-5xl md:text-6xl">{d.landing.howTitle}</h2>
+    <ol class="mt-10 grid gap-x-8 gap-y-10 md:grid-cols-4">
+      {
+        d.landing.steps.map((s, i) => (
+          <li class="border-t-2 border-flood pt-4">
+            <span class="display num text-4xl text-flood">{i + 1}</span>
+            <h3 class="mt-2 text-lg font-bold">{s.title}</h3>
+            <p class="mt-2 text-chalk-dim">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="border-y border-line bg-turf" aria-labelledby="features">
+    <div class="wrap grid gap-10 py-16 md:grid-cols-[1fr_2fr] md:py-20">
+      <h2 id="features" class="display text-5xl md:text-6xl">{d.landing.featuresTitle}</h2>
+      <dl class="grid gap-x-10 gap-y-7 sm:grid-cols-2">
+        {
+          d.landing.features.map((f) => (
+            <div>
+              <dt class="text-lg font-bold">{f.title}</dt>
+              <dd class="mt-1 text-chalk-dim">{f.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="wrap grid gap-12 py-16 md:grid-cols-2 md:py-20">
+    <div>
+      <h2 class="display text-4xl">{d.landing.leaguesTitle}</h2>
+      <ul class="mt-6 divide-y divide-line border-y border-line">
+        {
+          LEAGUES.map((l) => (
+            <li class="flex items-center justify-between py-3">
+              <span class="font-semibold">{l.name}</span>
+              <span class="text-chalk-faint">{l.country}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <h2 class="display text-4xl">{d.landing.stackTitle}</h2>
+      <dl class="mt-6 divide-y divide-line border-y border-line">
+        {
+          stack.map(([name, what]) => (
+            <div class="grid grid-cols-[10rem_1fr] gap-4 py-3">
+              <dt class="font-semibold">{name}</dt>
+              <dd class="text-chalk-dim">{what}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+</Base>
