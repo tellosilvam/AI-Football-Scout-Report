@@ -1,0 +1,62 @@
+---
+import Base from '../../layouts/Base.astro';
+import { isLang, t } from '../../lib/i18n';
+import { readStats } from '../../lib/usage';
+import { getAllPools } from '../../lib/football/pool';
+import { getQuota } from '../../lib/football/client';
+import { leagueById, seasonLabel } from '../../lib/football/leagues';
+
+export const prerender = false;
+
+const { lang } = Astro.params;
+if (!isLang(lang)) return Astro.redirect('/en', 302);
+const d = t(lang);
+const [stats, pools, quota] = await Promise.all([readStats(), getAllPools().catch(() => []), getQuota().catch(() => null)]);
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300');
+const nf = new Intl.NumberFormat(lang);
+
+const tiles = [
+  { label: d.stats.reports, value: stats.reports },
+  { label: d.stats.cached, value: stats.reports_cached },
+  { label: d.stats.chats, value: stats.chat_messages },
+  { label: d.stats.compares, value: stats.compares },
+  { label: d.stats.discover, value: stats.discover_queries },
+  { label: d.stats.tokens, value: stats.input_tokens + stats.output_tokens },
+  { label: d.stats.players, value: pools.reduce((n, p) => n + p.players.length, 0) },
+  { label: d.stats.quota, value: quota?.dailyRemaining ?? null },
+];
+---
+
+<Base lang={lang} title={d.stats.title} active="stats">
+  <div class="wrap py-10 md:py-14">
+    <h1 class="display text-[clamp(3rem,9vw,6.5rem)]">{d.stats.title}</h1>
+    <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line md:grid-cols-4">
+      {
+        tiles.map((tile) => (
+          <div class="bg-pitch p-5">
+            <dt class="text-sm text-chalk-faint">{tile.label}</dt>
+            <dd class="display num mt-2 text-5xl">{tile.value === null ? '—' : nf.format(tile.value)}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <h2 class="mt-14 text-xl font-bold">{d.stats.pools}</h2>
+    <table class="mt-4 w-full max-w-3xl text-left text-sm">
+      <tbody>
+        {
+          pools.map((p) => (
+            <tr class="border-b border-line">
+              <td class="py-2.5 font-medium">{leagueById(p.status.leagueId)?.name}</td>
+              <td class="py-2.5 text-chalk-dim">{seasonLabel(p.status.season, p.status.leagueId)}</td>
+              <td class="num py-2.5 text-right">{nf.format(p.players.length)}</td>
+              <td class="num py-2.5 text-right text-chalk-faint">
+                {p.status.pagesLoaded}/{p.status.totalPages ?? '?'}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</Base>

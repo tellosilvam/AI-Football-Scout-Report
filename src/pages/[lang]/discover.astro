@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import DiscoverView from '../../components/DiscoverView';
+import { isLang, t } from '../../lib/i18n';
+import { METRICS } from '../../lib/football/metrics';
+import { LEAGUES } from '../../lib/football/leagues';
+
+export const prerender = false;
+
+const { lang } = Astro.params;
+if (!isLang(lang)) return Astro.redirect('/en', 302);
+const d = t(lang);
+const metricLabels = Object.fromEntries(METRICS.map((m) => [m.key, d.metrics[m.key] ?? m.label]));
+---
+
+<Base lang={lang} title={d.discover.title} active="discover">
+  <div class="wrap py-10 md:py-14">
+    <h1 class="display text-[clamp(3rem,9vw,6.5rem)]">{d.discover.title}</h1>
+    <p class="prose-measure mt-4 text-lg text-chalk-dim">{d.discover.lead}</p>
+    <div class="mt-8 max-w-4xl">
+      <DiscoverView
+        client:load
+        lang={lang}
+        strings={d.discover}
+        positions={d.positions}
+        metricLabels={metricLabels}
+        leagues={LEAGUES.map((l) => ({ id: l.id, name: l.name }))}
+        yearsLabel={d.player.years}
+        errorText={d.errors.generic}
+      />
+    </div>
+  </div>
+</Base>

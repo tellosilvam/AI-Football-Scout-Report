@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/*
+ * Scouting dossier — design tokens
+ * Dark "floodlit pitch" by default, cool "report paper" light theme.
+ * One family (Archivo, variable width) for both display and text.
+ */
+
+:root {
+  --pitch: #0e1a14;
+  --turf: #15261d;
+  --turf-2: #1b3125;
+  --line: #2a3d32;
+  --chalk: #e9ede4;
+  --chalk-dim: #a9b8ad;
+  --chalk-faint: #6f8577;
+  --flood: #f2b33d;
+  --flood-ink: #1a1405;
+  --card: #e0563b;
+  --mid: #8fa596;
+  --focus: #f2b33d;
+
+  --font: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --radius: 6px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --max: 1240px;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --pitch: #f1f3ee;
+    --turf: #ffffff;
+    --turf-2: #e7ebe4;
+    --line: #cfd8cf;
+    --chalk: #0f1d15;
+    --chalk-dim: #3f5446;
+    --chalk-faint: #6a7d70;
+    --flood: #b97a06;
+    --flood-ink: #ffffff;
+    --card: #c2412a;
+    --mid: #7b8f81;
+    --focus: #b97a06;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --pitch: #f1f3ee;
+  --turf: #ffffff;
+  --turf-2: #e7ebe4;
+  --line: #cfd8cf;
+  --chalk: #0f1d15;
+  --chalk-dim: #3f5446;
+  --chalk-faint: #6a7d70;
+  --flood: #b97a06;
+  --flood-ink: #ffffff;
+  --card: #c2412a;
+  --mid: #7b8f81;
+  --focus: #b97a06;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-pitch: var(--pitch);
+  --color-turf: var(--turf);
+  --color-turf-2: var(--turf-2);
+  --color-line: var(--line);
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-chalk-faint: var(--chalk-faint);
+  --color-flood: var(--flood);
+  --color-flood-ink: var(--flood-ink);
+  --color-card: var(--card);
+  --color-mid: var(--mid);
+  --font-sans: var(--font);
+}
+
+html {
+  background: var(--pitch);
+  color: var(--chalk);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--pitch);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--flood);
+  color: var(--flood-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer components {
+/* ---------- Type system ---------- */
+
+/* Player names, big numbers: Archivo at its narrowest, heavy. */
+.display {
+  font-family: var(--font);
+  font-stretch: 62%;
+  font-variation-settings: "wdth" 62;
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+}
+
+.condensed {
+  font-stretch: 75%;
+  font-variation-settings: "wdth" 75;
+}
+
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.prose-measure {
+  max-width: 68ch;
+}
+
+/* ---------- Primitives ---------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.sheet {
+  background: var(--turf);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--chalk);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 120ms, border-color 120ms;
+}
+.btn:hover {
+  border-color: var(--chalk-faint);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--flood);
+  border-color: var(--flood);
+  color: var(--flood-ink);
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+  border-color: var(--flood);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--chalk-dim);
+  white-space: nowrap;
+}
+.chip[aria-pressed="true"] {
+  border-color: var(--flood);
+  color: var(--chalk);
+  background: color-mix(in srgb, var(--flood) 14%, transparent);
+}
+
+.field {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--turf);
+  color: var(--chalk);
+  font: inherit;
+}
+.field::placeholder {
+  color: var(--chalk-faint);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--flood);
+}
+
+.muted {
+  color: var(--chalk-dim);
+}
+.faint {
+  color: var(--chalk-faint);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--turf-2), var(--line), var(--turf-2));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--radius);
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Pitch markings used once, behind the landing headline. */
+.pitch-lines {
+  background-image:
+    radial-gradient(circle at 50% 100%, transparent 119px, var(--line) 120px, var(--line) 121px, transparent 122px),
+    linear-gradient(to right, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  background-repeat: no-repeat;
+}
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Print: the dossier as a PDF ---------- */
+@media print {
+  :root {
+    --pitch: #fff;
+    --turf: #fff;
+    --turf-2: #f2f2f2;
+    --line: #cfcfcf;
+    --chalk: #111;
+    --chalk-dim: #333;
+    --chalk-faint: #666;
+    --flood: #a76d00;
+    color-scheme: light;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .sheet {
+    break-inside: avoid;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
