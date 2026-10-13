@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { DiscoverInput } from '../lib/ai/tools';
 import type { DiscoverHit } from '../lib/football/service';
 import type { Dict } from '../lib/i18n';
@@ -26,7 +26,18 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
   const [result, setResult] = useState<Result | null>(null);
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
 
+  // Shareable searches: /discover?q=...
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get('q');
+    if (q && q.trim().length >= 3) {
+      setQuery(q);
+      run({ query: q });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function run(body: { query?: string; filters?: DiscoverInput }) {
+    if (body.query) history.replaceState(null, '', `?q=${encodeURIComponent(body.query)}`);
     setState('loading');
     try {
       const res = await fetch('/api/discover', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...body, lang }) });

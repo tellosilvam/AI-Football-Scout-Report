@@ -7,8 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL ?? 'https://ai-football-scout.vercel.app',
+  site: process.env.SITE_URL ?? 'https://ai-scout-tello.vercel.app',
   output: 'server',
+  devToolbar: { enabled: false },
   integrations: [react()],
   adapter: vercel({
     // League warm-up spaces API calls to respect 10 req/min, so it needs a long budget.

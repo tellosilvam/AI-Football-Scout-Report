@@ -37,7 +37,7 @@ export async function compareVerdict(a: PlayerProfile, b: PlayerProfile, lang: L
   const verdict = await cached(`compare:${x.id}:${x.season}:${y.id}:${y.season}:${lang}`, WEEK, async () => {
     const { output, usage } = await generateText({
       model: chatModel(),
-      instructions: `You are a professional football scout. Answer in ${LANG_NAME[lang]}. Use only the data given. Note that percentiles are relative to each player's own league; flag it when leagues or position groups differ.`,
+      instructions: `You are a professional football scout. Answer in ${LANG_NAME[lang]}. Use only the data given. Note that percentiles are relative to each player's own league; flag it when leagues or position groups differ. In prose, refer to players by name, never as "Player A/B".`,
       output: Output.object({ schema: compareSchema }),
       prompt: `Compare Player A and Player B and give a verdict. "a" refers to Player A.\n\n## Player A\n${playerContext(x)}\n\n## Player B\n${playerContext(y)}`,
     });
