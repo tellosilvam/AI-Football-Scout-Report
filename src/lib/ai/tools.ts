@@ -50,6 +50,24 @@ export const discoverInput = z.object({
 
 export type DiscoverInput = z.infer<typeof discoverInput>;
 
+/**
+ * Same filters for structured output. OpenAI's strict mode requires every key
+ * to be present, so "not set" is `null` here and stripped by `fromModelFilters`.
+ */
+export const discoverInputForModel = z.object({
+  position: z.enum(POSITIONS).nullable().describe('GK, DF (defenders incl. full-backs), MF, FW (forwards and wingers)'),
+  minAge: z.number().int().nullable(),
+  maxAge: z.number().int().nullable(),
+  leagueIds: z.array(z.number().int()).nullable(),
+  excludeBig5: z.boolean().nullable(),
+  minPercentiles: z.array(z.object({ metric: metricKey, min: z.number() })).nullable(),
+  sortBy: metricKey.nullable(),
+});
+
+export function fromModelFilters(f: z.infer<typeof discoverInputForModel>): DiscoverInput {
+  return Object.fromEntries(Object.entries(f).filter(([, v]) => v !== null && !(Array.isArray(v) && v.length === 0))) as DiscoverInput;
+}
+
 /** Model-facing filter shape → service filter shape. */
 export const toDiscoverFilters = ({ minPercentiles, ...rest }: DiscoverInput): DiscoverFilters => ({
   ...rest,

@@ -9,17 +9,22 @@ export type Persona = (typeof PERSONAS)[number];
 export const STYLES = ['possession', 'high-press', 'low-block', 'transition'] as const;
 export type TacticalStyle = (typeof STYLES)[number];
 
-const evidence = z
-  .array(
-    z.object({
-      metric: z.string().describe('Metric key exactly as given in the data, e.g. "key_passes_p90"'),
-      note: z.string().describe('Short justification citing the value and/or percentile'),
-    }),
-  )
-  .min(1)
-  .max(3);
+const evidenceOf = (metric: z.ZodType<string>) =>
+  z
+    .array(
+      z.object({
+        metric: metric.describe('Metric key exactly as given in the data, e.g. "key_passes_p90"'),
+        note: z.string().describe('Short justification citing the value and/or percentile'),
+      }),
+    )
+    .min(1)
+    .max(3);
 
-export const reportSchema = z.object({
+/** Report schema whose evidence can only cite the metric keys this player has. */
+export function reportSchemaFor(metricKeys: string[]) {
+  const metric = metricKeys.length ? z.enum(metricKeys as [string, ...string[]]) : z.string();
+  const evidence = evidenceOf(metric);
+  return z.object({
   overallRating: z.number().int().min(1).max(100).describe('Overall scouting grade for their level, 1–100'),
   idealRole: z.string().describe('Most suitable tactical role, e.g. "Inverted winger", "Ball-playing CB"'),
   headline: z.string().max(140).describe('One-sentence scouting verdict'),
@@ -29,12 +34,14 @@ export const reportSchema = z.object({
   comparablePlayers: z.array(z.string()).max(3).describe('Well-known players with a similar profile'),
   verdict: z.string().describe('Brief summary: overall level and whether the player would benefit a team'),
   confidence: z.enum(['low', 'medium', 'high']).describe('Lower when minutes or peer data are limited'),
-});
+  });
+}
 
+export const reportSchema = reportSchemaFor([]);
 export type ScoutReport = z.infer<typeof reportSchema>;
 
 export const fitSchema = z.object({
-  score: z.number().int().min(0).max(100),
+  score: z.number().int().min(0).max(100).describe('Fit score on a 0–100 scale (not 0–10)'),
   summary: z.string(),
   pros: z.array(z.string()).min(1).max(3),
   cons: z.array(z.string()).min(1).max(3),

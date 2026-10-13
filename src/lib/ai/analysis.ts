@@ -7,7 +7,7 @@ import type { PlayerProfile } from '../football/types';
 import { trackUsage } from '../usage';
 import { LANG_NAME, playerContext } from './context';
 import { compareSchema, fitSchema, type CompareVerdict, type FitReport, type Lang, type TacticalStyle } from './schema';
-import { discoverInput } from './tools';
+import { discoverInputForModel, fromModelFilters } from './tools';
 import { chatModel } from './models';
 
 const WEEK = 60 * 60 * 24 * 7;
@@ -51,7 +51,7 @@ export async function compareVerdict(a: PlayerProfile, b: PlayerProfile, lang: L
 }
 
 const interpretSchema = z.object({
-  filters: discoverInput,
+  filters: discoverInputForModel,
   explanation: z.string().describe('One sentence restating how the request was interpreted'),
 });
 
@@ -66,12 +66,12 @@ export async function interpretQuery(query: string, lang: Lang) {
         `Leagues: ${LEAGUES.map((l) => `${l.id}=${l.name} (${l.country})`).join(', ')}.`,
         `Metric keys: ${METRICS.map((m) => `${m.key} (${m.label})`).join(', ')}.`,
         'Map qualitative words to minimum percentiles: "good" ≈ 60, "very good"/"elite" ≈ 80. "Young"/"U23" → maxAge 23.',
-        'Use only metric keys from the list. Leave filters out rather than guessing.',
+        'Use only metric keys from the list. Set a filter to null rather than guessing.',
       ].join('\n'),
       output: Output.object({ schema: interpretSchema }),
       prompt: query,
     });
     await trackUsage(usage);
-    return output;
+    return { filters: fromModelFilters(output.filters), explanation: output.explanation };
   });
 }

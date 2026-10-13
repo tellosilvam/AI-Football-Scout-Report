@@ -46,6 +46,13 @@ describe('anti-hallucination guard', () => {
     expect(g.unknownMetrics).toEqual(['aerials_won_p90']);
   });
 
+  it('reads thousands separators in either locale', () => {
+    // 1800 minutes written as "1,800" (en) or "1.800" (es)
+    expect(checkText('Played 1,800 minutes', [1800])).toEqual([]);
+    expect(checkText('Jugó 1.800 minutos', [1800])).toEqual([]);
+    expect(checkText('Ranked 91.º in key passes', [91])).toEqual([]);
+  });
+
   it('ignores small counts and formations', () => {
     expect(checkText('Top 3 traits in a 4-3-3', [])).toEqual([]);
   });

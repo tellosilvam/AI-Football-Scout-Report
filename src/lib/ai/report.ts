@@ -5,7 +5,7 @@ import type { PlayerProfile } from '../football/types';
 import { bump, trackUsage } from '../usage';
 import { playerContext, reportInstructions } from './context';
 import { guardReport, type GuardResult } from './guard';
-import { reportSchema, type Lang, type Persona, type ScoutReport } from './schema';
+import { reportSchemaFor, type Lang, type Persona, type ScoutReport } from './schema';
 import { reportModel } from './models';
 
 export interface StoredReport {
@@ -32,6 +32,7 @@ export async function getCachedReport(p: PlayerProfile, lang: Lang, persona: Per
 export async function generateReport(p: PlayerProfile, lang: Lang, persona: Persona): Promise<StoredReport> {
   const context = playerContext(p);
   const instructions = reportInstructions(persona, lang);
+  const schema = reportSchemaFor(p.percentiles.filter((m) => m.value !== null).map((m) => m.key));
   let feedback = '';
   let last: { report: ScoutReport; guard: GuardResult } | null = null;
 
@@ -39,7 +40,7 @@ export async function generateReport(p: PlayerProfile, lang: Lang, persona: Pers
     const { output, usage } = await generateText({
       model: reportModel(),
       instructions,
-      output: Output.object({ schema: reportSchema }),
+      output: Output.object({ schema }),
       prompt: `Create a scouting report on this player.\n\n${context}${feedback}`,
       // Only read by reasoning models (e.g. gpt-5-mini); other providers ignore it.
       providerOptions: { openai: { reasoningEffort: 'low' } },

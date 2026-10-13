@@ -9,9 +9,10 @@ import { describe, expect, it } from 'vitest';
 import { generateReport } from '../src/lib/ai/report';
 import { getPlayerProfile, searchPlayers } from '../src/lib/football/service';
 
+// Mix of positions. Players in a warmed league pool cost no API requests.
 const PLAYERS = [
-  'Raphinha', 'Pedri', 'Saka', 'Rodri', 'Haaland', 'Wirtz', 'Barella', 'Kvaratskhelia',
-  'Dembele', 'Gvardiol', 'Alisson', 'Valverde', 'Messi', 'Paolo Guerrero', 'Hernan Barcos',
+  'Haaland', 'Salah', 'Saka', 'Palmer', 'Isak', 'Mbeumo', 'Rice', 'Mac Allister',
+  'Bruno Fernandes', 'Van Dijk', 'Gvardiol', 'Saliba', 'Alisson', 'Raya', 'Semenyo',
 ];
 
 type Row = { name: string; ok: boolean; firstTry: boolean; confidence: string; ms: number; issues: string };

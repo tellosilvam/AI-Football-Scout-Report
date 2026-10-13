@@ -47,7 +47,8 @@ export const GET: APIRoute = async ({ params, url }) => {
   const id = Number(String(params.id).replace(/\.png$/, ''));
   const profile = id ? await getPlayerProfile(id).catch(() => null) : null;
 
-  const frame = { width: '100%', height: '100%', background: PITCH, color: CHALK, fontFamily: 'Archivo', flexDirection: 'column', justifyContent: 'space-between' };
+  // Satori sizes boxes content-box: padding is added on top of width/height.
+  const frame = { width: 1200 - 112, height: 630 - 112, background: PITCH, color: CHALK, fontFamily: 'Archivo', flexDirection: 'column', justifyContent: 'space-between' };
   let body: Node;
 
   if (profile) {
@@ -57,38 +58,47 @@ export const GET: APIRoute = async ({ params, url }) => {
       .slice(0, 4);
     body = h(
       'div',
-      { ...frame, padding: 64 },
+      { ...frame, padding: 56, position: 'relative', justifyContent: 'flex-start', gap: 64 },
       h(
         'div',
-        { alignItems: 'center', gap: 40 },
-        { type: 'img', props: { src: profile.photo, width: 180, height: 180, style: { borderRadius: 10, border: `2px solid ${LINE}` } } },
+        { position: 'absolute', top: 56, right: 56, flexDirection: 'column', alignItems: 'flex-end' },
+        h('div', { fontFamily: 'Narrow', fontSize: 40, color: CHALK }, 'AI Scout'),
+        h('div', { fontSize: 22, color: DIM }, profile.peerGroup ? `${d.player.percentiles}, n=${profile.peerGroup.size}` : d.player.percentiles),
+      ),
+      h(
+        'div',
+        { alignItems: 'center', gap: 36 },
+        { type: 'img', props: { src: profile.photo, width: 150, height: 150, style: { borderRadius: 10, border: `2px solid ${LINE}` } } },
         h(
           'div',
           { flexDirection: 'column' },
           h('div', { fontSize: 30, color: FLOOD }, profile.position ? d.positions[profile.position] : ''),
-          h('div', { fontSize: 112, fontFamily: 'Narrow', lineHeight: 1 }, profile.name),
+          h('div', { fontSize: 100, fontFamily: 'Narrow', lineHeight: 1 }, profile.name),
           h('div', { fontSize: 30, color: DIM, marginTop: 8 }, `${profile.team?.name ?? ''}  /  ${profile.league?.name ?? ''} ${seasonLabel(profile.season, profile.leagueId)}`),
         ),
       ),
       h(
         'div',
-        { flexDirection: 'column', gap: 14 },
+        { flexDirection: 'column', gap: 10 },
         ...top.map((s) =>
           h(
             'div',
             { alignItems: 'center', gap: 20 },
-            h('div', { width: 280, fontSize: 28, color: DIM }, s.label),
-            h('div', { flex: 1, height: 18, background: LINE, borderRadius: 9 }, h('div', { width: `${s.percentile}%`, height: 18, borderRadius: 9, background: band(s.percentile ?? 0) })),
-            h('div', { width: 70, justifyContent: 'flex-end', fontSize: 36, fontFamily: 'Narrow' }, String(s.percentile)),
+            h('div', { width: 260, fontSize: 26, color: DIM }, s.label),
+            h(
+              'div',
+              { width: 660, height: 16, background: LINE, borderRadius: 8 },
+              h('div', { width: Math.round((660 * (s.percentile ?? 0)) / 100), height: 16, borderRadius: 8, background: band(s.percentile ?? 0) }),
+            ),
+            h('div', { width: 90, justifyContent: 'flex-end', fontSize: 34, fontFamily: 'Narrow' }, String(s.percentile)),
           ),
         ),
       ),
-      h('div', { justifyContent: 'space-between', alignItems: 'flex-end', fontSize: 26, color: DIM }, h('div', { fontFamily: 'Narrow', fontSize: 44, color: CHALK }, 'AI Scout'), d.player.percentiles),
     );
   } else {
     body = h(
       'div',
-      { ...frame, padding: 64 },
+      { ...frame, padding: 56 },
       h('div', { fontFamily: 'Narrow', fontSize: 44 }, 'AI Scout'),
       h('div', { fontFamily: 'Narrow', fontSize: 108, lineHeight: 0.95, whiteSpace: 'pre-wrap' }, d.landing.title),
     );

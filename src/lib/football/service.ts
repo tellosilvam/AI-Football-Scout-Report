@@ -18,13 +18,19 @@ export async function searchPlayers(query: string, limit = 8): Promise<PlayerSum
   if (q.length < 3) return [];
 
   const pools = await getAllPools();
-  const local: PlayerSummary[] = [];
+  // Rank: whole-word match > word-prefix match > substring ("Saka" before "Wan-Bissaka"), then minutes.
+  const scored: { p: PlayerSummary & { minutes: number }; rank: number }[] = [];
   for (const pool of pools) {
     for (const p of pool.players) {
-      if (fold(`${p.name} ${p.fullName}`).includes(q)) local.push(toSummary(p));
+      const hay = fold(`${p.name} ${p.fullName}`);
+      if (!hay.includes(q)) continue;
+      const words = hay.split(/[^a-z0-9]+/);
+      const rank = words.includes(q) ? 0 : words.some((w) => w.startsWith(q)) || hay.startsWith(q) ? 1 : 2;
+      scored.push({ p: toSummary(p), rank });
     }
   }
-  local.sort((a, b) => (b as PlayerSeason).minutes - (a as PlayerSeason).minutes);
+  scored.sort((a, b) => a.rank - b.rank || b.p.minutes - a.p.minutes);
+  const local: PlayerSummary[] = scored.map((x) => x.p);
   if (local.length >= limit) return dedupe(local).slice(0, limit);
 
   try {
@@ -72,8 +78,25 @@ async function latestSeason(playerId: number): Promise<number | null> {
   return seasons[0] ? clampSeason(seasons[0]) : null;
 }
 
-/** Live player season (cached 24h). Picks the supported league with most minutes. */
+/** Player row from an already-warmed league pool: zero API calls. */
+async function fromPools(playerId: number, season?: number): Promise<PlayerSeason | null> {
+  let best: PlayerSeason | null = null;
+  for (const pool of await getAllPools()) {
+    if (season !== undefined && pool.status.season !== season) continue;
+    const row = pool.players.find((p) => p.id === playerId);
+    if (row && row.minutes > (best?.minutes ?? -1)) best = row;
+  }
+  return best && best.minutes > 0 ? best : null;
+}
+
+/**
+ * Player season in a supported league. Served from the league pools when the
+ * player is there; otherwise live from the API (cached 24h), picking the
+ * supported league with most minutes.
+ */
 export async function getPlayerSeason(playerId: number, season?: number): Promise<PlayerSeason | null> {
+  const pooled = await fromPools(playerId, season !== undefined ? clampSeason(season) : undefined);
+  if (pooled) return pooled;
   const s = season !== undefined ? clampSeason(season) : await latestSeason(playerId);
   if (!s) return null;
   const res = await apiGet<ApiPlayerEntry>('players', { id: playerId, season: s }, DAY);
