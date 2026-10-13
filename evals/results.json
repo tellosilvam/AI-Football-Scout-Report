@@ -1,0 +1,129 @@
+{
+  "runAt": "2026-10-13T07:29:04.683Z",
+  "model": "openai/gpt-5-mini",
+  "guardPass": "15/15",
+  "firstTry": "14/15",
+  "avgMs": 9522,
+  "rows": [
+    {
+      "name": "E. Haaland",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 8374,
+      "issues": ""
+    },
+    {
+      "name": "Mohamed Salah",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7415,
+      "issues": ""
+    },
+    {
+      "name": "B. Saka",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7796,
+      "issues": ""
+    },
+    {
+      "name": "C. Palmer",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7937,
+      "issues": ""
+    },
+    {
+      "name": "A. Isak",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7941,
+      "issues": ""
+    },
+    {
+      "name": "B. Mbeumo",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 6517,
+      "issues": ""
+    },
+    {
+      "name": "D. Rice",
+      "ok": true,
+      "firstTry": false,
+      "confidence": "high",
+      "ms": 19996,
+      "issues": ""
+    },
+    {
+      "name": "A. Mac Allister",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 8544,
+      "issues": ""
+    },
+    {
+      "name": "Bruno Fernandes",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 15424,
+      "issues": ""
+    },
+    {
+      "name": "V. van Dijk",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 9561,
+      "issues": ""
+    },
+    {
+      "name": "J. Gvardiol",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 11251,
+      "issues": ""
+    },
+    {
+      "name": "W. Saliba",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 8395,
+      "issues": ""
+    },
+    {
+      "name": "Alisson Becker",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7917,
+      "issues": ""
+    },
+    {
+      "name": "David Raya",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 7732,
+      "issues": ""
+    },
+    {
+      "name": "A. Semenyo",
+      "ok": true,
+      "firstTry": true,
+      "confidence": "high",
+      "ms": 8027,
+      "issues": ""
+    }
+  ]
+}
