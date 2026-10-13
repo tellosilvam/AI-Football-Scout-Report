@@ -1,3 +1,4 @@
+import { config } from '../env';
 import { apiGet } from './client';
 
 export interface LeagueDef {
@@ -29,16 +30,19 @@ interface ApiLeagueEntry {
   seasons: { year: number; current: boolean; coverage?: { players?: boolean } }[];
 }
 
-/** Current season for a league according to the API (cached 24h). */
+export const clampSeason = (season: number) => (config.maxSeason ? Math.min(season, config.maxSeason) : season);
+
+/** Current season for a league according to the API (cached 24h), capped by the plan's last season. */
 export async function currentSeason(leagueId: number): Promise<number> {
   const def = leagueById(leagueId);
+  let season = def?.fallbackSeason ?? new Date().getFullYear() - 1;
   try {
     const res = await apiGet<ApiLeagueEntry>('leagues', { id: leagueId, current: 'true' }, 60 * 60 * 24);
-    const season = res.response[0]?.seasons.find((s) => s.current)?.year;
-    return season ?? def?.fallbackSeason ?? new Date().getFullYear() - 1;
+    season = res.response[0]?.seasons.find((s) => s.current)?.year ?? season;
   } catch {
-    return def?.fallbackSeason ?? new Date().getFullYear() - 1;
+    /* fallback */
   }
+  return clampSeason(season);
 }
 
 export const seasonLabel = (season: number, leagueId: number) => {

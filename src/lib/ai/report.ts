@@ -6,6 +6,7 @@ import { bump, trackUsage } from '../usage';
 import { playerContext, reportInstructions } from './context';
 import { guardReport, type GuardResult } from './guard';
 import { reportSchema, type Lang, type Persona, type ScoutReport } from './schema';
+import { reportModel } from './models';
 
 export interface StoredReport {
   report: ScoutReport;
@@ -36,11 +37,12 @@ export async function generateReport(p: PlayerProfile, lang: Lang, persona: Pers
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     const { output, usage } = await generateText({
-      model: config.reportModel,
+      model: reportModel(),
       instructions,
       output: Output.object({ schema: reportSchema }),
       prompt: `Create a scouting report on this player.\n\n${context}${feedback}`,
-      temperature: 0.6,
+      // Only read by reasoning models (e.g. gpt-5-mini); other providers ignore it.
+      providerOptions: { openai: { reasoningEffort: 'low' } },
     });
     await trackUsage(usage);
     const guard = guardReport(output, p);

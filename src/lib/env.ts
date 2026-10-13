@@ -13,6 +13,19 @@ export const config = {
   get reportModel() {
     return env('REPORT_MODEL') ?? 'anthropic/claude-sonnet-5.5';
   },
+  /**
+   * Latest season the API plan can read. API-Football's free plan stops at 2024;
+   * leave unset on a paid plan to always use the current season.
+   */
+  get maxSeason() {
+    const v = Number(env('DATA_MAX_SEASON'));
+    return Number.isFinite(v) && v > 2000 ? v : null;
+  },
+  /** Highest `page` the plan allows (free: 3). Unset = no cap; a plan error at runtime is still handled. */
+  get maxPage() {
+    const v = Number(env('DATA_MAX_PAGE'));
+    return Number.isFinite(v) && v > 0 ? v : 99;
+  },
   get chatModel() {
     return env('CHAT_MODEL') ?? 'anthropic/claude-haiku-5.5';
   },

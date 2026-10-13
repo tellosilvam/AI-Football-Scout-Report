@@ -55,7 +55,7 @@ export const en = {
     league: 'League',
     percentiles: 'Percentiles',
     vsPeers: 'vs. {n} {position}s in {league} with ≥{min} min',
-    poolWarming: 'League data is still warming up ({loaded}/{total} pages). Percentiles appear once enough peers are cached.',
+    poolWarming: 'League data is still warming up ({loaded}/{total} teams). Percentiles appear once enough peers are cached.',
     poolMissing: 'This league is not in the percentile pool yet. Showing raw per-90 values.',
     lowMinutes: 'Limited minutes this season: treat percentiles with caution.',
     value: 'Value',

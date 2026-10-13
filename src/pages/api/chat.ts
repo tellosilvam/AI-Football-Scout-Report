@@ -9,6 +9,7 @@ import { getPlayerProfile } from '../../lib/football/service';
 import { badRequest, errorResponse, idSchema, json, langSchema, personaSchema, readJson, seasonSchema } from '../../lib/http';
 import { ipOf, limit, tooMany } from '../../lib/ratelimit';
 import { bump, trackUsage } from '../../lib/usage';
+import { chatModel } from '../../lib/ai/models';
 
 export const prerender = false;
 
@@ -46,7 +47,7 @@ export const POST: APIRoute = async (ctx) => {
 
     const tools = scoutTools(profile);
     const result = streamText({
-      model: config.chatModel,
+      model: chatModel(),
       instructions,
       messages: await convertToModelMessages(input.messages),
       tools,

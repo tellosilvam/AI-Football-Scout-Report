@@ -45,7 +45,9 @@ export function reportInstructions(persona: Persona, lang: Lang) {
     'Rules:',
     '- Use ONLY the data provided. Never invent statistics, transfer fees, injuries or match events.',
     '- Every number you write must appear in the data (you may round to 1 decimal).',
-    '- Evidence items must reference metric keys exactly as listed in the table.',
+    '- Evidence items must reference metric keys exactly as listed in the table (the `metric` field only).',
+    '- In all prose (headline, profile, notes, verdict) name metrics in plain words in the output language, never by their key, and translate "per 90" (e.g. "por 90", "par 90", "por 90").',
+    '- Prefer percentiles over raw values when they exist: "91st percentile for key passes among league forwards" says more than a raw number.',
     '- If minutes are low (< 900) or percentiles are missing, lower `confidence` and say so in the verdict.',
     '- Comparable players are illustrative style references, not statistical claims.',
   ].join('\n');

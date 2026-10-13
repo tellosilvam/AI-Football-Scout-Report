@@ -1,7 +1,6 @@
 import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import { cached } from '../cache';
-import { config } from '../env';
 import { LEAGUES } from '../football/leagues';
 import { METRICS } from '../football/metrics';
 import type { PlayerProfile } from '../football/types';
@@ -9,6 +8,7 @@ import { trackUsage } from '../usage';
 import { LANG_NAME, playerContext } from './context';
 import { compareSchema, fitSchema, type CompareVerdict, type FitReport, type Lang, type TacticalStyle } from './schema';
 import { discoverInput } from './tools';
+import { chatModel } from './models';
 
 const WEEK = 60 * 60 * 24 * 7;
 
@@ -22,7 +22,7 @@ const STYLE_BRIEF: Record<TacticalStyle, string> = {
 export async function tacticalFit(p: PlayerProfile, style: TacticalStyle, lang: Lang): Promise<FitReport> {
   return cached(`fit:${p.id}:${p.season}:${style}:${lang}`, WEEK, async () => {
     const { output, usage } = await generateText({
-      model: config.chatModel,
+      model: chatModel(),
       instructions: `You are a tactical head coach. Answer in ${LANG_NAME[lang]}. Use only the data given; every number you cite must appear in it.`,
       output: Output.object({ schema: fitSchema }),
       prompt: `Evaluate how well this player fits this system.\nSystem: ${STYLE_BRIEF[style]}\n\n${playerContext(p)}`,
@@ -36,7 +36,7 @@ export async function compareVerdict(a: PlayerProfile, b: PlayerProfile, lang: L
   const [x, y] = a.id < b.id ? [a, b] : [b, a];
   const verdict = await cached(`compare:${x.id}:${x.season}:${y.id}:${y.season}:${lang}`, WEEK, async () => {
     const { output, usage } = await generateText({
-      model: config.chatModel,
+      model: chatModel(),
       instructions: `You are a professional football scout. Answer in ${LANG_NAME[lang]}. Use only the data given. Note that percentiles are relative to each player's own league; flag it when leagues or position groups differ.`,
       output: Output.object({ schema: compareSchema }),
       prompt: `Compare Player A and Player B and give a verdict. "a" refers to Player A.\n\n## Player A\n${playerContext(x)}\n\n## Player B\n${playerContext(y)}`,
@@ -59,7 +59,7 @@ const interpretSchema = z.object({
 export async function interpretQuery(query: string, lang: Lang) {
   return cached(`nlq:${lang}:${query.trim().toLowerCase()}`, WEEK, async () => {
     const { output, usage } = await generateText({
-      model: config.chatModel,
+      model: chatModel(),
       instructions: [
         `Translate a football scouting request into search filters. Write the explanation in ${LANG_NAME[lang]}.`,
         'Position groups: GK, DF (centre-backs and full-backs), MF, FW (strikers and wingers).',

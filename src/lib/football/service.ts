@@ -1,5 +1,5 @@
 import { apiGet } from './client';
-import { LEAGUES, currentSeason, isSupportedLeague, leagueById } from './leagues';
+import { LEAGUES, clampSeason, currentSeason, isSupportedLeague, leagueById } from './leagues';
 import { METRICS, toPositionGroup } from './metrics';
 import { normalizeEntry } from './normalize';
 import { minMinutesFor, peersOf, percentilesFor, poolPercentiles } from './percentiles';
@@ -69,12 +69,12 @@ const toSummary = (p: PlayerSeason): PlayerSummary & { minutes: number } => ({
 async function latestSeason(playerId: number): Promise<number | null> {
   const res = await apiGet<number>('players/seasons', { player: playerId }, DAY);
   const seasons = res.response.filter((s) => typeof s === 'number').sort((a, b) => b - a);
-  return seasons[0] ?? null;
+  return seasons[0] ? clampSeason(seasons[0]) : null;
 }
 
 /** Live player season (cached 24h). Picks the supported league with most minutes. */
 export async function getPlayerSeason(playerId: number, season?: number): Promise<PlayerSeason | null> {
-  const s = season ?? (await latestSeason(playerId));
+  const s = season !== undefined ? clampSeason(season) : await latestSeason(playerId);
   if (!s) return null;
   const res = await apiGet<ApiPlayerEntry>('players', { id: playerId, season: s }, DAY);
   const entry = res.response[0];

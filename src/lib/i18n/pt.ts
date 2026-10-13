@@ -57,7 +57,7 @@ export const pt: Dict = {
     league: 'Liga',
     percentiles: 'Percentis',
     vsPeers: 'vs. {n} {position} da {league} com ≥{min} min',
-    poolWarming: 'Os dados da liga estão carregando ({loaded}/{total} páginas). Os percentis aparecem quando houver jogadores suficientes.',
+    poolWarming: 'Os dados da liga estão carregando ({loaded}/{total} times). Os percentis aparecem quando houver jogadores suficientes.',
     poolMissing: 'Esta liga ainda não está na base de percentis. Mostrando valores por 90.',
     lowMinutes: 'Poucos minutos nesta temporada: use os percentis com cautela.',
     value: 'Valor',

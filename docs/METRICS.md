@@ -31,8 +31,10 @@ All `p90` metrics are `total / minutes × 90`. `%` metrics are ratios. Percentil
 ## Position groups
 API-Football only exposes four positions (`Goalkeeper`, `Defender`, `Midfielder`, `Attacker`), so peers are GK / DF / MF / FW. Full-backs are compared with centre-backs and wingers with strikers. This is a known limitation of the source and is stated in the UI.
 
-## To verify in the Phase 0 spike (needs a real key)
-- [ ] `passes.accuracy` semantics (percentage vs. count). Not used yet for that reason.
-- [ ] Free-plan season access (current season available?).
-- [ ] `/players/profiles?search=` behaviour (min length, accents, surname-only).
-- [ ] Pages per league (≈ 30–40 expected) and real per-minute limit.
+## Phase 0 spike results (2026-10-13, free plan)
+- **Seasons**: free plan reads 2022–2024 only (`Free plans do not have access to this season`). `DATA_MAX_SEASON=2024` caps every season the app asks for. `/players/seasons` still lists 2025–2026, so the cap is required.
+- **Pagination**: free plan caps `page` at 3. A league-wide listing would stop at 60 players (Premier League has 57 pages), so pools are built per team: `/teams?league&season` + `/players?team&season&page≤3`. Large clubs can have a 4th page (youth/loans); those teams are marked partial.
+- **Cost**: ~61 requests per league (1 + 20 teams × ≤3 pages). Free quota is 100/day and 10/min.
+- **`passes.accuracy`**: mostly `null`, otherwise an unexplained small integer. Not used.
+- **Positions**: `games.position` uses `Goalkeeper / Defender / Midfielder / Attacker`, and sometimes `Forward`. Both map to FW.
+- **Search**: `/players/profiles?search=raphinha` works (≥3 chars) and returns position and photo, but no club.
