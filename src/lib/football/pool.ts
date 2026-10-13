@@ -146,15 +146,20 @@ export async function warmPool(
   }
 }
 
-/** Warm leagues in order, skipping complete ones. Used by the daily cron. */
-export async function warmNext(budgetMs = 280_000) {
+/**
+ * Warm leagues in order, skipping complete ones. Used by the daily crons.
+ * `maxRequests` caps API calls for the whole run so live traffic keeps some quota.
+ */
+export async function warmNext(budgetMs = 280_000, maxRequests = 40) {
   const results: WarmResult[] = [];
   const deadline = Date.now() + budgetMs;
+  let left = maxRequests;
   for (const league of LEAGUES) {
-    const left = deadline - Date.now();
-    if (left < 15_000) break;
-    const r = await warmPool(league.id, { budgetMs: left });
+    const timeLeft = deadline - Date.now();
+    if (timeLeft < 15_000 || left <= 0) break;
+    const r = await warmPool(league.id, { budgetMs: timeLeft, maxRequests: left });
     results.push(r);
+    left -= r.requests;
     if (r.stoppedBy === 'quota' || r.stoppedBy === 'budget' || r.stoppedBy === 'error') break;
   }
   return results;

@@ -16,11 +16,11 @@ export const GET: APIRoute = async ({ request, url }) => {
     return json({ error: 'unauthorized' }, { status: 401 });
   }
   const league = Number(url.searchParams.get('league'));
-  const maxRequests = Number(url.searchParams.get('requests') ?? 80);
+  const maxRequests = Number(url.searchParams.get('requests') ?? 40);
   const restart = url.searchParams.get('restart') === '1';
   if (league) {
     if (!leagueById(league)) return json({ error: 'unknown league' }, { status: 400 });
     return json(await warmPool(league, { maxRequests, restart }));
   }
-  return json({ results: await warmNext() });
+  return json({ results: await warmNext(280_000, Math.min(maxRequests, 80)) });
 };
