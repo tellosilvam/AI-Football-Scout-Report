@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 export interface PizzaSlice {
   key: string;
   label: string;
@@ -27,7 +25,7 @@ const RING_LABEL = 248;
 
 /** Percentile band → fill. Low = card red, middle = neutral, high = floodlight. */
 export const bandColor = (p: number | null) =>
-  p === null ? 'var(--line)' : p >= 67 ? 'var(--flood)' : p >= 34 ? 'var(--mid)' : 'var(--card)';
+  p === null ? 'var(--line)' : p >= 67 ? 'var(--hi)' : p >= 34 ? 'var(--mid)' : 'var(--lo)';
 
 function polar(r: number, a: number) {
   return [C + r * Math.cos(a), C + r * Math.sin(a)] as const;
@@ -42,14 +40,12 @@ function wedge(r: number, a0: number, a1: number) {
   return `M${x0} ${y0} L${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2} L${x3} ${y3} A${R0} ${R0} 0 ${large} 0 ${x0} ${y0} Z`;
 }
 
-/** Percentile "pizza": one wedge per metric, radius = percentile, grouped by category. */
+/**
+ * Percentile "pizza": one wedge per metric, radius = percentile, grouped by category.
+ * Static SVG: the entry animation is CSS (`.pizza-wedge`), so it needs no hydration
+ * and renders fully without JavaScript; reduced motion disables it globally.
+ */
 export default function PizzaChart({ slices, title, centerValue, centerLabel, per90Label }: Props) {
-  const [grown, setGrown] = useState(false);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setGrown(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
-
   const n = slices.length;
   if (!n) return null;
   const step = (Math.PI * 2) / n;
@@ -96,23 +92,19 @@ export default function PizzaChart({ slices, title, centerValue, centerLabel, pe
           const [bx, by] = polar((s.percentile ?? 0) >= 35 ? r - 20 : r + 20, mid);
           return (
             <g key={s.key}>
-              <path d={wedge(R1, a0, a1)} fill="var(--turf-2)" opacity={0.55} />
+              <path d={wedge(R1, a0, a1)} fill="var(--wash)" opacity={0.55} />
               <path
                 d={wedge(r, a0, a1)}
                 fill={bandColor(s.percentile)}
-                style={{
-                  transformOrigin: `${C}px ${C}px`,
-                  transform: grown ? 'scale(1)' : 'scale(0.25)',
-                  opacity: grown ? 1 : 0,
-                  transition: `transform 700ms cubic-bezier(.2,.8,.2,1) ${i * 35}ms, opacity 300ms ${i * 35}ms`,
-                }}
+                className="pizza-wedge"
+                style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${i * 35}ms` }}
               >
                 <title>{`${s.label}: ${s.value ?? '—'}${s.unit === 'pct' ? '%' : ` ${per90Label}`} · ${s.percentile ?? '—'}`}</title>
               </path>
               {s.percentile !== null && (
-                <g style={{ opacity: grown ? 1 : 0, transition: `opacity 300ms ${300 + i * 35}ms` }}>
-                  <circle cx={bx} cy={by} r={17} fill="var(--pitch)" stroke={bandColor(s.percentile)} strokeWidth={1.5} />
-                  <text x={bx} y={by} textAnchor="middle" dominantBaseline="central" className="num" fontSize={15} fontWeight={700} fill="var(--chalk)">
+                <g className="pizza-badge" style={{ animationDelay: `${300 + i * 35}ms` }}>
+                  <circle cx={bx} cy={by} r={17} fill="var(--canvas)" stroke={bandColor(s.percentile)} strokeWidth={1.5} />
+                  <text x={bx} y={by} textAnchor="middle" dominantBaseline="central" className="num" fontSize={15} fontWeight={700} fill="var(--ink)">
                     {s.percentile}
                   </text>
                 </g>
@@ -127,32 +119,32 @@ export default function PizzaChart({ slices, title, centerValue, centerLabel, pe
           const a = start + g.from * step;
           const [x0, y0] = polar(R0, a);
           const [x1, y1] = polar(R1 + 14, a);
-          return <line key={g.label} x1={x0} y1={y0} x2={x1} y2={y1} stroke="var(--chalk-faint)" strokeWidth={1.5} />;
+          return <line key={g.label} x1={x0} y1={y0} x2={x1} y2={y1} stroke="var(--ink-faint)" strokeWidth={1.5} />;
         })}
 
         {/* Hole */}
-        <circle cx={C} cy={C} r={R0 - 2} fill="var(--pitch)" stroke="var(--line)" />
+        <circle cx={C} cy={C} r={R0 - 2} fill="var(--canvas)" stroke="var(--line)" />
         {centerValue && (
           <>
-            <text x={C} y={C - (centerLabel ? 6 : 0)} textAnchor="middle" dominantBaseline="central" className="display num" fontSize={34} fill="var(--chalk)">
+            <text x={C} y={C - (centerLabel ? 6 : 0)} textAnchor="middle" dominantBaseline="central" className="display num" fontSize={34} fill="var(--ink)">
               {centerValue}
             </text>
             {centerLabel && (
-              <text x={C} y={C + 20} textAnchor="middle" fontSize={10} fill="var(--chalk-faint)">
+              <text x={C} y={C + 20} textAnchor="middle" fontSize={10} fill="var(--ink-faint)">
                 {centerLabel}
               </text>
             )}
           </>
         )}
       </svg>
-      <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-chalk-dim">
+      <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-soft">
         {groups.map((g) => (
           <span key={g.label}>{g.label}</span>
         ))}
-        <span className="ml-auto flex items-center gap-3 text-chalk-faint">
-          <Swatch color="var(--card)" label="0–33" />
+        <span className="ml-auto flex items-center gap-3 text-ink-faint">
+          <Swatch color="var(--lo)" label="0–33" />
           <Swatch color="var(--mid)" label="34–66" />
-          <Swatch color="var(--flood)" label="67–100" />
+          <Swatch color="var(--hi)" label="67–100" />
         </span>
       </figcaption>
     </figure>
@@ -166,7 +158,7 @@ function MetricLabel({ angle, label }: { angle: number; label: string }) {
   const words = label.split(' ');
   const lines = words.length > 1 && label.length > 11 ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')] : [label];
   return (
-    <text x={x} y={y} textAnchor={anchor} dominantBaseline="central" fontSize={19} fontWeight={500} fill="var(--chalk-dim)">
+    <text x={x} y={y} textAnchor={anchor} dominantBaseline="central" fontSize={19} fontWeight={500} fill="var(--ink-soft)">
       {lines.map((l, i) => (
         <tspan key={l} x={x} dy={i === 0 ? (lines.length > 1 ? -11 : 0) : 22}>
           {l}

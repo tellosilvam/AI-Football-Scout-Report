@@ -1,67 +1,138 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SearchBox from '../../components/SearchBox';
-import { isLang, t } from '../../lib/i18n';
-import { LEAGUES } from '../../lib/football/leagues';
+import PizzaChart from '../../components/PizzaChart';
+import { isLang, t, fmt } from '../../lib/i18n';
+import { LEAGUES, currentSeason } from '../../lib/football/leagues';
+import { getPool } from '../../lib/football/pool';
+import { featuredProfile } from '../../lib/football/service';
+import { slugify } from '../../lib/football/normalize';
+import { bandVar, categoryScores, peerNote, seasonText, slicesFor } from '../../lib/view';
+import evals from '../../../evals/results.json';
 
 export const prerender = false;
 
 const { lang } = Astro.params;
 if (!isLang(lang)) return Astro.redirect('/en', 302);
 const d = t(lang);
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
 
 const searchStrings = { ...d.search, positions: d.positions };
-const stack = [
-  ['Astro 7', 'Server-rendered pages, React islands only where there is interaction'],
-  ['Vercel AI SDK 7', 'Structured output with Zod, streaming chat with tool calling'],
-  ['AI Gateway', 'Provider-agnostic model routing, Claude by default'],
-  ['API-Football', 'Live season stats, cached and warmed per league'],
-  ['Upstash Redis', 'Cache, league pools, rate limiting and usage counters'],
-  ['TypeScript + Vitest', 'Typed end to end; guard and percentile maths under test'],
+const featured = await featuredProfile().catch(() => null);
+const slices = featured ? slicesFor(featured, lang) : [];
+const scores = categoryScores(slices);
+
+// League pools: ready, loading, then the next one in line.
+const pools = await Promise.all(
+  LEAGUES.map(async (l) => ({ league: l, pool: await getPool(l.id, await currentSeason(l.id)).catch(() => null) })),
+);
+let nextAssigned = false;
+const leagues = pools.map(({ league, pool }) => {
+  const s = pool?.status;
+  if (s?.complete) {
+    return { league, width: 100, ready: true, label: fmt(d.landing.leagueStatus.ready, { n: (pool?.players.length ?? 0).toLocaleString(lang) }) };
+  }
+  if (s && s.pagesLoaded > 0) {
+    nextAssigned = true;
+    const width = Math.round((s.pagesLoaded / (s.totalPages || 20)) * 100);
+    return { league, width, ready: false, label: fmt(d.landing.leagueStatus.loading, { done: s.pagesLoaded, total: s.totalPages ?? '?' }) };
+  }
+  const label = nextAssigned ? d.landing.leagueStatus.queued : d.landing.leagueStatus.next;
+  nextAssigned = true;
+  return { league, width: 0, ready: false, label };
+});
+
+const proof = [
+  { value: evals.guardPass, label: d.landing.proof.verified },
+  { value: evals.firstTry, label: d.landing.proof.firstTry },
+  { value: `${(evals.avgMs / 1000).toFixed(1)} s`, label: d.landing.proof.avgTime },
+  { value: '5', label: d.landing.proof.tools },
 ];
 ---
 
 <Base lang={lang} active="search">
-  <!-- Hero: the search is the product, so it is the hero -->
-  <section class="pitch-lines relative overflow-hidden border-b border-line" style="background-position: center bottom; background-size: 100% 100%">
-    <div class="wrap relative pb-20 pt-16 md:pb-28 md:pt-24">
-      <h1 class="display whitespace-pre-line text-[clamp(3.6rem,12vw,10.5rem)]">{d.landing.title}</h1>
-      <p class="prose-measure mt-6 text-lg text-chalk-dim md:text-xl">{d.landing.lead}</p>
-      <div class="mt-10 max-w-2xl">
+  <section class="wrap grid items-center gap-10 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pb-20 lg:pt-14">
+    <div>
+      <h1 class="display text-[clamp(3.4rem,8.6vw,8rem)]">{d.landing.title.replace('\n', ' ')}</h1>
+      <p class="prose-measure mt-6 text-lg text-ink-soft md:text-xl">{d.landing.lead}</p>
+      <div class="mt-9 max-w-xl">
         <SearchBox client:load lang={lang} strings={searchStrings} size="lg" />
       </div>
-      <p class="mt-4 text-sm">
-        <a href={`/${lang}/discover`} class="text-chalk-dim underline decoration-line underline-offset-4 hover:text-chalk">{d.landing.discoverCta}</a>
+      <p class="mt-4 text-[0.95rem]">
+        <a href={`/${lang}/discover`} class="text-ink-soft underline decoration-line underline-offset-4 hover:text-ink">{d.landing.orDiscover}</a>
       </p>
     </div>
+
+    {
+      featured && (
+        <figure class="m-0">
+          <a href={`/${lang}/player/${slugify(featured.name, featured.id)}`} class="block" aria-label={featured.name}>
+            <PizzaChart
+              slices={slices}
+              title={d.player.percentiles}
+              centerValue={featured.rating ? featured.rating.toFixed(1) : undefined}
+              centerLabel={featured.rating ? d.player.rating : undefined}
+              per90Label={d.player.per90}
+            />
+          </a>
+          <figcaption class="mt-1 flex flex-wrap justify-between gap-x-6 gap-y-1 text-[0.95rem] text-ink-soft">
+            <span>
+              <strong class="font-bold text-ink">{featured.name}</strong>, {featured.team?.name}, {featured.league?.name} {seasonText(featured)}
+            </span>
+            <span>{peerNote(featured, lang)}</span>
+          </figcaption>
+        </figure>
+      )
+    }
   </section>
 
-  <!-- How it works: a real sequence, so it is numbered -->
-  <section class="wrap py-16 md:py-24" aria-labelledby="how">
-    <h2 id="how" class="display text-5xl md:text-6xl">{d.landing.howTitle}</h2>
-    <ol class="mt-10 grid gap-x-8 gap-y-10 md:grid-cols-4">
+  {
+    featured && scores.length > 0 && (
+      <section aria-label={d.landing.scoreboard} class="border-y border-line bg-paper">
+        <dl class="wrap grid grid-cols-2 md:grid-cols-4">
+          {scores.map((c) => (
+            <div class="flex items-baseline gap-4 py-6 pr-4">
+              <dt class="order-2 flex flex-col">
+                <span class="text-lg font-bold">{c.name}</span>
+                <span class="hidden text-sm text-ink-faint sm:block">{c.metrics}</span>
+              </dt>
+              <dd class="display num order-1 m-0 text-[clamp(3.5rem,7vw,6rem)]" style={`color: ${bandVar(c.value)}`}>
+                {c.value ?? '—'}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )
+  }
+
+  <section class="wrap py-20 md:py-28" aria-labelledby="how">
+    <h2 id="how" class="section-title max-w-3xl">{d.landing.stepsTitle}</h2>
+    <ol class="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
       {
         d.landing.steps.map((s, i) => (
-          <li class="border-t-2 border-flood pt-4">
-            <span class="display num text-4xl text-flood">{i + 1}</span>
-            <h3 class="mt-2 text-lg font-bold">{s.title}</h3>
-            <p class="mt-2 text-chalk-dim">{s.body}</p>
+          <li class="border-t-2 border-ink pt-5">
+            <span class="display num text-5xl text-hi">{i + 1}</span>
+            <h3 class="mt-3 text-xl font-bold">{s.title}</h3>
+            <p class="mt-2 text-ink-soft">{s.body}</p>
           </li>
         ))
       }
     </ol>
   </section>
 
-  <section class="border-y border-line bg-turf" aria-labelledby="features">
-    <div class="wrap grid gap-10 py-16 md:grid-cols-[1fr_2fr] md:py-20">
-      <h2 id="features" class="display text-5xl md:text-6xl">{d.landing.featuresTitle}</h2>
-      <dl class="grid gap-x-10 gap-y-7 sm:grid-cols-2">
+  <section class="border-t border-line">
+    <div class="wrap grid gap-12 py-20 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div>
+        <h2 class="section-title">{d.landing.proofTitle}</h2>
+        <p class="prose-measure mt-6 text-lg text-ink-soft">{d.landing.proofLead}</p>
+      </div>
+      <dl class="grid grid-cols-2 gap-px self-start overflow-hidden rounded-[var(--radius)] border border-line bg-line">
         {
-          d.landing.features.map((f) => (
-            <div>
-              <dt class="text-lg font-bold">{f.title}</dt>
-              <dd class="mt-1 text-chalk-dim">{f.body}</dd>
+          proof.map((p) => (
+            <div class="bg-paper p-6 md:p-7">
+              <dt class="display num text-[clamp(2.75rem,5vw,4.25rem)]">{p.value}</dt>
+              <dd class="m-0 mt-2 text-ink-soft">{p.label}</dd>
             </div>
           ))
         }
@@ -69,32 +140,23 @@ const stack = [
     </div>
   </section>
 
-  <section class="wrap grid gap-12 py-16 md:grid-cols-2 md:py-20">
-    <div>
-      <h2 class="display text-4xl">{d.landing.leaguesTitle}</h2>
-      <ul class="mt-6 divide-y divide-line border-y border-line">
+  <section aria-labelledby="leagues" class="border-t border-line">
+    <div class="wrap py-16 md:py-20">
+      <h2 id="leagues" class="text-2xl font-bold">{d.landing.leaguesTitle}</h2>
+      <ul class="mt-6">
         {
-          LEAGUES.map((l) => (
-            <li class="flex items-center justify-between py-3">
-              <span class="font-semibold">{l.name}</span>
-              <span class="text-chalk-faint">{l.country}</span>
+          leagues.map(({ league, width, ready, label }) => (
+            <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 border-b border-line py-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.6fr)_minmax(0,1.6fr)_13rem]">
+              <span class="display text-[2rem]">{league.name}</span>
+              <span class="text-ink-faint">{league.country}</span>
+              <span class="col-span-2 block h-1.5 overflow-hidden rounded-full bg-wash md:col-span-1" aria-hidden="true">
+                <span class="block h-full rounded-full" style={`width: ${width}%; background: ${ready ? 'var(--hi)' : 'var(--mid)'}`} />
+              </span>
+              <span class="num col-span-2 text-ink-soft md:col-span-1 md:text-right">{label}</span>
             </li>
           ))
         }
       </ul>
-    </div>
-    <div>
-      <h2 class="display text-4xl">{d.landing.stackTitle}</h2>
-      <dl class="mt-6 divide-y divide-line border-y border-line">
-        {
-          stack.map(([name, what]) => (
-            <div class="grid grid-cols-[10rem_1fr] gap-4 py-3">
-              <dt class="font-semibold">{name}</dt>
-              <dd class="text-chalk-dim">{what}</dd>
-            </div>
-          ))
-        }
-      </dl>
     </div>
   </section>
 </Base>

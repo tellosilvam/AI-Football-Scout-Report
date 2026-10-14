@@ -6,6 +6,13 @@ export const en = {
   },
   nav: { search: 'Search', discover: 'Discover', compare: 'Compare', shortlist: 'Shortlist', stats: 'Stats', how: 'How it works' },
   landing: {
+    scoreboard: 'Average percentile by category',
+    stepsTitle: 'From season stats to a verdict',
+    proofTitle: 'A scout that checks its own work',
+    proofLead: 'Every number in a report is matched against the source data before you see it. If one does not match, the report is written again.',
+    proof: { verified: 'reports with every figure verified', firstTry: 'passed on the first attempt', avgTime: 'average time to a full report', tools: 'tools the scout can call in a chat' },
+    leagueStatus: { ready: '{n} players', loading: 'Loading, {done} of {total} teams', next: 'Next up', queued: 'Queued' },
+    orDiscover: 'Or describe the player you need in plain words.',
     kicker: 'Scouting dossier · Season data · AI analysis',
     title: 'Scout any player\nin seconds.',
     lead: 'Real season stats from 7 leagues, percentiles against positional peers, and an AI scout that only cites numbers it can prove.',
@@ -40,6 +47,11 @@ export const en = {
     error: 'Search is unavailable right now.',
   },
   player: {
+    aiGrade: 'AI grade',
+    avgPercentile: 'average percentile',
+    rateNote: 'Per 90 minutes unless shown as a rate.',
+    legend: 'Red 67 and above, grey 34 to 66, blue 33 and below.',
+    sectionsLabel: 'Dossier sections',
     season: 'Season',
     minutes: 'Minutes',
     apps: 'Apps',
@@ -111,6 +123,7 @@ export const en = {
     match: 'match',
   },
   chat: {
+    askLead: 'It can look up any player, compare two of them and search the leagues with filters before it answers.',
     title: 'Ask the scout',
     intro: "I've studied {name}'s season. Ask me anything: I can look up, compare and search other players.",
     placeholder: 'Ask about this player…',

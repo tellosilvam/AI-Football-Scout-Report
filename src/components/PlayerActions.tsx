@@ -4,10 +4,13 @@ import { addToShortlist, inShortlist, onShortlistChange, removeFromShortlist, ty
 interface Props {
   item: Omit<ShortlistItem, 'addedAt'>;
   compareHref: string;
+  /** Smaller buttons for the dossier's section bar. */
+  compact?: boolean;
   strings: { shortlistAdd: string; shortlistRemove: string; compareWith: string; share: string; copied: string; exportPdf: string };
 }
 
-export default function PlayerActions({ item, compareHref, strings }: Props) {
+export default function PlayerActions({ item, compareHref, strings, compact }: Props) {
+  const size = compact ? 'min-h-[40px] px-3 text-sm' : '';
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -35,7 +38,7 @@ export default function PlayerActions({ item, compareHref, strings }: Props) {
     <div className="no-print flex flex-wrap gap-2">
       <button
         type="button"
-        className={`btn ${saved ? 'border-flood text-flood' : ''}`}
+        className={`btn ${size} ${saved ? 'border-hi text-hi' : ''}`}
         aria-pressed={saved}
         onClick={() => (saved ? removeFromShortlist(item.id) : addToShortlist(item))}
       >
@@ -44,13 +47,13 @@ export default function PlayerActions({ item, compareHref, strings }: Props) {
         </svg>
         {saved ? strings.shortlistRemove : strings.shortlistAdd}
       </button>
-      <a className="btn" href={compareHref}>
+      <a className={`btn ${size}`} href={compareHref}>
         {strings.compareWith}
       </a>
-      <button type="button" className="btn" onClick={share} aria-live="polite">
+      <button type="button" className={`btn ${size}`} onClick={share} aria-live="polite">
         {copied ? strings.copied : strings.share}
       </button>
-      <button type="button" className="btn" onClick={() => window.print()}>
+      <button type="button" className={`btn ${size}`} onClick={() => window.print()}>
         {strings.exportPdf}
       </button>
     </div>

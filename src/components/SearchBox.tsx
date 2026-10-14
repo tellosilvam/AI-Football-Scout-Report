@@ -95,7 +95,7 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
       </label>
       <div className="relative">
         <svg
-          className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-chalk-faint ${big ? 'h-6 w-6' : 'h-5 w-5'}`}
+          className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint ${big ? 'h-6 w-6' : 'h-5 w-5'}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -129,10 +129,10 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
       </div>
       {showList && (
         <div className="sheet absolute left-0 right-0 z-40 mt-2 max-h-[min(70vh,440px)] overflow-y-auto p-1 shadow-2xl shadow-black/40">
-          {q.trim().length < 3 && <p className="px-3 py-3 text-sm text-chalk-faint">{strings.min}</p>}
-          {state === 'loading' && <p className="px-3 py-3 text-sm text-chalk-faint">{strings.loading}</p>}
-          {state === 'error' && <p className="px-3 py-3 text-sm text-card">{strings.error}</p>}
-          {state === 'done' && results.length === 0 && <p className="px-3 py-3 text-sm text-chalk-dim">{strings.empty}</p>}
+          {q.trim().length < 3 && <p className="px-3 py-3 text-sm text-ink-faint">{strings.min}</p>}
+          {state === 'loading' && <p className="px-3 py-3 text-sm text-ink-faint">{strings.loading}</p>}
+          {state === 'error' && <p className="px-3 py-3 text-sm text-lo">{strings.error}</p>}
+          {state === 'done' && results.length === 0 && <p className="px-3 py-3 text-sm text-ink-soft">{strings.empty}</p>}
           <ul id={listId} role="listbox" aria-label={strings.label}>
             {results.map((p, i) => (
               <li
@@ -143,12 +143,12 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(p)}
                 onMouseEnter={() => setActive(i)}
-                className={`flex cursor-pointer items-center gap-3 rounded px-3 py-2 ${i === active ? 'bg-turf-2' : ''}`}
+                className={`flex cursor-pointer items-center gap-3 rounded px-3 py-2 ${i === active ? 'bg-wash' : ''}`}
               >
-                <img src={p.photo} alt="" width={40} height={40} loading="lazy" className="h-10 w-10 rounded bg-turf-2 object-cover" />
+                <img src={p.photo} alt="" width={40} height={40} loading="lazy" className="h-10 w-10 rounded bg-wash object-cover" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">{p.name}</span>
-                  <span className="block truncate text-sm text-chalk-faint">
+                  <span className="block truncate text-sm text-ink-faint">
                     {[p.position ? strings.positions[p.position] : null, p.team?.name, p.league?.name].filter(Boolean).join(', ') ||
                       p.nationality}
                   </span>

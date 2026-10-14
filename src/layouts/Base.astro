@@ -41,7 +41,7 @@ const nav = [
     <link rel="canonical" href={canonical} />
     {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(altHref(l), site).toString()} />)}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#0e1a14" />
+    <meta name="theme-color" content="#e9eae5" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
@@ -50,7 +50,7 @@ const nav = [
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet" />
     <script is:inline>
       try {
         const saved = localStorage.getItem('aiscout-theme');
@@ -63,7 +63,7 @@ const nav = [
     <header class="no-print border-b border-line">
       <div class="wrap flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
         <a href={`/${lang}`} class="flex items-baseline gap-2 no-underline" aria-label="AI Scout home">
-          <span class="display whitespace-nowrap text-[1.9rem] text-chalk">AI Scout</span>
+          <span class="display whitespace-nowrap text-[1.85rem] text-ink">AI Scout</span>
         </a>
         <nav aria-label="Main" class="order-last -mx-3 flex w-full items-center gap-1 overflow-x-auto sm:order-none sm:mx-0 sm:ml-auto sm:w-auto">
           {
@@ -72,8 +72,8 @@ const nav = [
                 href={item.href}
                 aria-current={active === item.key ? 'page' : undefined}
                 class:list={[
-                  'rounded-md px-3 py-2 text-[0.95rem] font-medium whitespace-nowrap',
-                  active === item.key ? 'text-chalk bg-turf-2' : 'text-chalk-dim hover:text-chalk',
+                  'rounded-full px-3.5 py-2 text-[0.95rem] font-medium whitespace-nowrap',
+                  active === item.key ? 'bg-ink text-canvas' : 'text-ink-soft hover:text-ink',
                 ]}
               >
                 {item.label}
@@ -87,7 +87,7 @@ const nav = [
             {
               LANGS.map((l) => (
                 <li>
-                  <a href={altHref(l)} hreflang={l} lang={l} class:list={['block rounded px-3 py-2', l === lang ? 'text-flood' : 'hover:bg-turf-2']}>
+                  <a href={altHref(l)} hreflang={l} lang={l} class:list={['block rounded px-3 py-2', l === lang ? 'text-hi' : 'hover:bg-wash']}>
                     {LANG_LABEL[l]}
                   </a>
                 </li>
@@ -108,12 +108,12 @@ const nav = [
     </main>
 
     <footer class="no-print mt-24 border-t border-line">
-      <div class="wrap flex flex-col gap-3 py-8 text-sm text-chalk-faint md:flex-row md:items-center md:justify-between">
+      <div class="wrap flex flex-col gap-3 py-8 text-sm text-ink-faint md:flex-row md:items-center md:justify-between">
         <p>{d.footer.data} {d.footer.disclaimer}</p>
         <p class="flex gap-4">
-          <a class="hover:text-chalk" href={`/${lang}/stats`}>{d.nav.stats}</a>
-          <a class="hover:text-chalk" href="https://github.com/tellosilvam/AI-Football-Scout-Report" rel="noopener">{d.footer.source}</a>
-          <a class="hover:text-chalk" href="https://migueltello.site" rel="noopener">{d.footer.by}</a>
+          <a class="hover:text-ink" href={`/${lang}/stats`}>{d.nav.stats}</a>
+          <a class="hover:text-ink" href="https://github.com/tellosilvam/AI-Football-Scout-Report" rel="noopener">{d.footer.source}</a>
+          <a class="hover:text-ink" href="https://migueltello.site" rel="noopener">{d.footer.by}</a>
         </p>
       </div>
     </footer>
@@ -121,7 +121,7 @@ const nav = [
     <script is:inline>
       document.getElementById('theme-toggle')?.addEventListener('click', () => {
         const root = document.documentElement;
-        const current = root.dataset.theme ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
         const next = current === 'light' ? 'dark' : 'light';
         root.dataset.theme = next;
         try {

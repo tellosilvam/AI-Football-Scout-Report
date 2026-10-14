@@ -53,7 +53,7 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
       const data = await res.json();
       if (!data.report) return set({ kind: 'empty' });
       set({ kind: 'ready', data });
-      window.dispatchEvent(new CustomEvent('aiscout:report', { detail: { overall: data.report.overallRating } }));
+      window.dispatchEvent(new CustomEvent('aiscout:report', { detail: { overall: data.report.overallRating, role: data.report.idealRole } }));
     } catch {
       set({ kind: 'error', message: strings.error });
     }
@@ -75,9 +75,9 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
   }
 
   return (
-    <section aria-labelledby="report-title" aria-busy={state.kind === 'loading'} className="sheet p-5 md:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="report-title" className="text-xl font-bold">
+    <div aria-busy={state.kind === 'loading'}>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 id="report-title" className="section-title">
           {strings.title}
         </h2>
         <div className="no-print flex flex-wrap gap-1.5" role="group" aria-label={strings.persona}>
@@ -89,24 +89,24 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
         </div>
       </div>
 
-      <div className="mt-5" aria-live="polite">
+      <div className="mt-8" aria-live="polite">
         {state.kind === 'checking' && <ReportSkeleton />}
         {state.kind === 'empty' && (
-          <div className="flex flex-col items-start gap-3 py-6">
-            <button type="button" className="btn btn-primary" onClick={() => load()}>
+          <div className="flex flex-col items-start gap-3 rounded-[var(--radius)] border border-dashed border-line px-6 py-10">
+            <button type="button" className="btn btn-primary min-h-[52px] px-6 text-base" onClick={() => load()}>
               {strings.generate}
             </button>
           </div>
         )}
         {state.kind === 'loading' && (
           <div>
-            <p className="mb-4 text-chalk-dim">{strings.generating}</p>
+            <p className="mb-4 text-ink-soft">{strings.generating}</p>
             <ReportSkeleton />
           </div>
         )}
         {state.kind === 'error' && (
           <div className="flex flex-col items-start gap-3 py-4">
-            <p className="text-chalk-dim">{state.message}</p>
+            <p className="text-ink-soft">{state.message}</p>
             <button type="button" className="btn" onClick={() => load()}>
               {strings.generate}
             </button>
@@ -114,7 +114,7 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
         )}
         {state.kind === 'ready' && <ReportBody data={state.data} strings={strings} metricLabels={metricLabels} onRegenerate={() => load({ regenerate: true })} playerName={playerName} />}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -135,66 +135,54 @@ function ReportBody({
   const problems = [...data.guard.unknownNumbers, ...data.guard.unknownMetrics];
   return (
     <article aria-label={`${strings.title}: ${playerName}`}>
-      <div className="grid grid-cols-[auto_1fr] items-center gap-x-5 gap-y-2 border-b border-line pb-5">
-        <div className="row-span-2 flex h-[88px] w-[88px] flex-col items-center justify-center rounded-md border-2 border-flood">
-          <span className="display num text-[2.9rem] leading-none text-chalk">{r.overallRating}</span>
-          <span className="text-[0.7rem] text-chalk-faint">{strings.overall}</span>
-        </div>
-        <p className="text-sm text-chalk-faint">
-          {strings.role}: <span className="font-semibold text-chalk">{r.idealRole}</span>
-        </p>
-        <p className="text-lg font-semibold leading-snug">{r.headline}</p>
-      </div>
+      <p className="text-ink-soft">
+        {strings.role}: <span className="font-semibold text-ink">{r.idealRole}</span>
+      </p>
+      <p className="mt-3 max-w-[30ch] text-[clamp(1.6rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-[-0.015em] sm:max-w-[38ch]">{r.headline}</p>
 
-      <div className="mt-5 grid gap-6 md:grid-cols-2">
+      <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-12">
         <TraitList title={strings.strengths} items={r.strengths} tone="good" metricLabels={metricLabels} />
         <TraitList title={strings.weaknesses} items={r.weaknesses} tone="bad" metricLabels={metricLabels} />
       </div>
 
-      <div className="mt-6 space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold text-chalk-faint">{strings.profile}</h3>
-          <p className="prose-measure mt-1">{r.tacticalProfile}</p>
-        </div>
-        {r.comparablePlayers.length > 0 && (
+      <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-12">
+        <div className="space-y-6">
           <div>
-            <h3 className="text-sm font-semibold text-chalk-faint">{strings.comparables}</h3>
-            <p className="mt-1 flex flex-wrap gap-1.5">
-              {r.comparablePlayers.map((p) => (
-                <span key={p} className="chip">
-                  {p}
-                </span>
-              ))}
+            <h3 className="text-sm font-semibold text-ink-faint">{strings.profile}</h3>
+            <p className="prose-measure mt-1.5 text-[1.05rem]">{r.tacticalProfile}</p>
+          </div>
+          <div className="rounded-[var(--radius)] bg-canvas px-5 py-4">
+            <h3 className="text-sm font-semibold text-ink-faint">{strings.verdict}</h3>
+            <p className="prose-measure mt-1.5 text-[1.1rem]">{r.verdict}</p>
+          </div>
+        </div>
+        <div className="space-y-5">
+          {r.comparablePlayers.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-ink-faint">{strings.comparables}</h3>
+              <p className="mt-1.5 text-[1.05rem]">{r.comparablePlayers.join(', ')}</p>
+            </div>
+          )}
+          <div className="space-y-1 text-sm text-ink-soft">
+            <p className="flex items-center gap-2">
+              {data.guard.ok ? (
+                <>
+                  <CheckIcon /> {strings.verified}
+                </>
+              ) : (
+                strings.unverified.replace('{items}', problems.join(', '))
+              )}
+            </p>
+            <p className="text-ink-faint">
+              {strings.confidence}: {strings.confidenceLevels[r.confidence]}. {strings.model}: {data.model.split('/').pop()}
+              {data.cached ? `, ${strings.cached.toLowerCase()}` : ''}
             </p>
           </div>
-        )}
-        <div className="rounded-md border-l-4 border-flood bg-turf-2 px-4 py-3">
-          <h3 className="text-sm font-semibold text-chalk-faint">{strings.verdict}</h3>
-          <p className="prose-measure mt-1">{r.verdict}</p>
+          <button type="button" className="btn no-print min-h-[40px] px-4 text-sm" onClick={onRegenerate}>
+            {strings.regenerate}
+          </button>
         </div>
       </div>
-
-      <footer className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-4 text-sm text-chalk-faint">
-        <span>
-          {strings.confidence}: <strong className="text-chalk">{strings.confidenceLevels[r.confidence]}</strong>
-        </span>
-        <span className="flex items-center gap-1.5">
-          {data.guard.ok ? (
-            <>
-              <CheckIcon /> {strings.verified}
-            </>
-          ) : (
-            strings.unverified.replace('{items}', problems.join(', '))
-          )}
-        </span>
-        <span>
-          {strings.model}: {data.model.split('/').pop()}
-          {data.cached ? `, ${strings.cached.toLowerCase()}` : ''}
-        </span>
-        <button type="button" className="btn no-print ml-auto min-h-[36px] px-3 text-sm" onClick={onRegenerate}>
-          {strings.regenerate}
-        </button>
-      </footer>
     </article>
   );
 }
@@ -212,18 +200,18 @@ function TraitList({
 }) {
   return (
     <div>
-      <h3 className="mb-2 flex items-center gap-2 font-semibold">
-        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: tone === 'good' ? 'var(--flood)' : 'var(--card)' }} aria-hidden="true" />
+      <h3 className="flex items-center gap-2.5 text-xl font-bold">
+        <span className="inline-block h-3 w-3 rounded-full" style={{ background: tone === 'good' ? 'var(--hi)' : 'var(--lo)' }} aria-hidden="true" />
         {title}
       </h3>
-      <ul className="space-y-3">
+      <ul className="mt-3">
         {items.map((it) => (
-          <li key={it.title}>
-            <p className="font-medium">{it.title}</p>
-            <ul className="mt-1 space-y-1">
+          <li key={it.title} className="border-t border-line py-4">
+            <p className="text-[1.1rem] font-semibold">{it.title}</p>
+            <ul className="mt-1.5 space-y-1.5">
               {it.evidence.map((e) => (
-                <li key={e.metric + e.note} className="text-sm text-chalk-dim">
-                  <span className="mr-1.5 rounded bg-turf-2 px-1.5 py-0.5 text-xs text-chalk">{metricLabels[e.metric] ?? e.metric}</span>
+                <li key={e.metric + e.note} className="text-ink-soft">
+                  <span className="mr-2 rounded-md bg-wash px-2 py-0.5 text-[0.82rem] font-medium text-ink">{metricLabels[e.metric] ?? e.metric}</span>
                   {e.note}
                 </li>
               ))}
@@ -237,20 +225,19 @@ function TraitList({
 
 function ReportSkeleton() {
   return (
-    <div className="space-y-3" aria-hidden="true">
-      <div className="skeleton h-20 w-full" />
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="skeleton h-28" />
-        <div className="skeleton h-28" />
+    <div className="space-y-4" aria-hidden="true">
+      <div className="skeleton h-24 w-full max-w-3xl" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="skeleton h-40" />
+        <div className="skeleton h-40" />
       </div>
-      <div className="skeleton h-16 w-full" />
     </div>
   );
 }
 
 function CheckIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--flood)" strokeWidth="2.5" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hi)" strokeWidth="2.5" aria-hidden="true">
       <path d="M20 6 9 17l-5-5" />
     </svg>
   );

@@ -117,8 +117,13 @@ export async function getPlayerSeason(playerId: number, season?: number): Promis
 }
 
 /** Player + percentiles vs. same-position peers in their league pool. */
-export async function getPlayerProfile(playerId: number, season?: number): Promise<PlayerProfile | null> {
-  const player = await getPlayerSeason(playerId, season);
+export async function getPlayerProfile(
+  playerId: number,
+  season?: number,
+  opts: { pooledOnly?: boolean } = {},
+): Promise<PlayerProfile | null> {
+  // pooledOnly: never call the API (used for decorative content like the landing hero).
+  const player = opts.pooledOnly ? await fromPools(playerId, season) : await getPlayerSeason(playerId, season);
   if (!player) return null;
 
   const pool = await getPool(player.leagueId, player.season);
@@ -210,6 +215,21 @@ export async function discover(f: DiscoverFilters): Promise<{ hits: DiscoverHit[
 }
 
 export const METRIC_KEYS = METRICS.map((m) => m.key);
+
+/**
+ * A player to feature on the landing page, from cached pools only.
+ * Prefers the requested id, else the forward with the most minutes.
+ */
+export async function featuredProfile(preferredId = 1100): Promise<PlayerProfile | null> {
+  const preferred = await getPlayerProfile(preferredId, undefined, { pooledOnly: true });
+  if (preferred?.peerGroup) return preferred;
+  const pools = await getAllPools();
+  const top = pools
+    .flatMap((p) => p.players)
+    .filter((p) => p.position === 'FW')
+    .sort((a, b) => b.minutes - a.minutes)[0];
+  return top ? getPlayerProfile(top.id, top.season, { pooledOnly: true }) : null;
+}
 
 export async function seasonFor(leagueId: number) {
   return currentSeason(leagueId);

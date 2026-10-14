@@ -83,7 +83,7 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
           <button
             key={ex}
             type="button"
-            className="chip cursor-pointer hover:text-chalk"
+            className="chip cursor-pointer hover:text-ink"
             onClick={() => {
               setQuery(ex);
               run({ query: ex });
@@ -96,11 +96,11 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
 
       <div className="mt-10" aria-live="polite" aria-busy={state === 'loading'}>
         {state === 'loading' && <div className="skeleton h-72" aria-hidden="true" />}
-        {state === 'error' && <p className="text-chalk-dim">{errorText}</p>}
+        {state === 'error' && <p className="text-ink-soft">{errorText}</p>}
         {state === 'idle' && result && f && (
           <>
             <div className="sheet p-4">
-              <p className="text-sm text-chalk-faint">{strings.interpreted}</p>
+              <p className="text-sm text-ink-faint">{strings.interpreted}</p>
               {result.explanation && <p className="mt-1">{result.explanation}</p>}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {f.position && <FilterChip label={`${strings.filters.position}: ${positions[f.position]}`} onRemove={() => drop((x) => delete x.position)} />}
@@ -129,28 +129,28 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
               </div>
             </div>
 
-            <p className="mt-6 text-sm text-chalk-faint">
+            <p className="mt-6 text-sm text-ink-faint">
               {strings.results.replace('{n}', String(result.hits.length)).replace('{pools}', String(result.poolsSearched))}
             </p>
             {result.hits.length === 0 ? (
-              <p className="mt-3 text-chalk-dim">{strings.none}</p>
+              <p className="mt-3 text-ink-soft">{strings.none}</p>
             ) : (
               <ol className="mt-3 divide-y divide-line border-y border-line">
                 {result.hits.map((h, i) => {
                   const shown = (f.minPercentiles?.map((m) => m.metric) ?? Object.keys(h.percentiles)).slice(0, 4);
                   return (
                     <li key={h.player.id}>
-                      <a href={`/${lang}/player/${slugOf(h.player)}`} className="grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3 hover:text-flood">
-                        <span className="num text-chalk-faint">{i + 1}</span>
-                        <img src={h.player.photo} alt="" width={44} height={44} loading="lazy" className="h-11 w-11 rounded bg-turf-2 object-cover" />
+                      <a href={`/${lang}/player/${slugOf(h.player)}`} className="grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3 hover:text-hi">
+                        <span className="num text-ink-faint">{i + 1}</span>
+                        <img src={h.player.photo} alt="" width={44} height={44} loading="lazy" className="h-11 w-11 rounded bg-wash object-cover" />
                         <span className="min-w-0">
                           <span className="block truncate font-semibold">{h.player.name}</span>
-                          <span className="block truncate text-sm text-chalk-faint">
+                          <span className="block truncate text-sm text-ink-faint">
                             {[h.player.team?.name, h.player.league?.name, h.player.age ? `${h.player.age} ${yearsLabel}` : null].filter(Boolean).join(', ')}
                           </span>
                           <span className="mt-1 hidden flex-wrap gap-1 sm:flex">
                             {shown.map((k) => (
-                              <span key={k} className="rounded bg-turf-2 px-1.5 py-0.5 text-xs text-chalk-dim">
+                              <span key={k} className="rounded bg-wash px-1.5 py-0.5 text-xs text-ink-soft">
                                 {metricLabels[k] ?? k} {h.percentiles[k] ?? '—'}
                               </span>
                             ))}
@@ -158,7 +158,7 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
                         </span>
                         <span className="text-right">
                           <span className="display num block text-3xl">{h.score}</span>
-                          <span className="block text-[0.7rem] text-chalk-faint">{strings.score}</span>
+                          <span className="block text-[0.7rem] text-ink-faint">{strings.score}</span>
                         </span>
                       </a>
                     </li>
@@ -177,7 +177,7 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
   return (
     <span className="chip" aria-pressed="true">
       {label}
-      <button type="button" onClick={onRemove} className="-mr-1 ml-0.5 rounded px-1 text-chalk-faint hover:text-chalk" aria-label={`Remove ${label}`}>
+      <button type="button" onClick={onRemove} className="-mr-1 ml-0.5 rounded px-1 opacity-70 hover:opacity-100" aria-label={`Remove ${label}`}>
         ×
       </button>
     </span>

@@ -1,105 +1,92 @@
 @import "tailwindcss";
 
 /*
- * Scouting dossier — design tokens
- * Dark "floodlit pitch" by default, cool "report paper" light theme.
- * One family (Archivo, variable width) for both display and text.
+ * Terrace — design tokens
+ * Daylight concrete by default, floodlit-night variant for the theme toggle.
+ * Percentiles use a diverging scale: kit red (high) · grey (middle) · away blue (low),
+ * which also differ in lightness so they read without colour.
+ * One family (Bricolage Grotesque): narrow and heavy for display, regular for text.
  */
 
 :root {
-  --pitch: #0e1a14;
-  --turf: #15261d;
-  --turf-2: #1b3125;
-  --line: #2a3d32;
-  --chalk: #e9ede4;
-  --chalk-dim: #a9b8ad;
-  --chalk-faint: #6f8577;
-  --flood: #f2b33d;
-  --flood-ink: #1a1405;
-  --card: #e0563b;
-  --mid: #8fa596;
-  --focus: #f2b33d;
+  --canvas: #e9eae5;
+  --paper: #ffffff;
+  --wash: #dcded7;
+  --line: #c9cbc4;
+  --ink: #15181b;
+  --ink-soft: #4e545a;
+  --ink-faint: #5f656b;
+  --hi: #d62828;
+  --hi-ink: #ffffff;
+  --mid: #9aa0a6;
+  --lo: #2b59c3;
+  --btn: #15181b;
+  --btn-ink: #ffffff;
+  --focus: #2b59c3;
 
-  --font: "Archivo", ui-sans-serif, system-ui, sans-serif;
-  --radius: 6px;
+  --font: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --radius: 12px;
   --gutter: clamp(16px, 4vw, 40px);
-  --max: 1240px;
+  --max: 1360px;
 
-  color-scheme: dark;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --pitch: #f1f3ee;
-    --turf: #ffffff;
-    --turf-2: #e7ebe4;
-    --line: #cfd8cf;
-    --chalk: #0f1d15;
-    --chalk-dim: #3f5446;
-    --chalk-faint: #6a7d70;
-    --flood: #b97a06;
-    --flood-ink: #ffffff;
-    --card: #c2412a;
-    --mid: #7b8f81;
-    --focus: #b97a06;
-    color-scheme: light;
-  }
-}
-
-:root[data-theme="light"] {
-  --pitch: #f1f3ee;
-  --turf: #ffffff;
-  --turf-2: #e7ebe4;
-  --line: #cfd8cf;
-  --chalk: #0f1d15;
-  --chalk-dim: #3f5446;
-  --chalk-faint: #6a7d70;
-  --flood: #b97a06;
-  --flood-ink: #ffffff;
-  --card: #c2412a;
-  --mid: #7b8f81;
-  --focus: #b97a06;
   color-scheme: light;
 }
 
+/* Terrace is a daylight identity: dark is opt-in via the theme toggle. */
 :root[data-theme="dark"] {
+  --canvas: #121518;
+  --paper: #1b1f23;
+  --wash: #262b30;
+  --line: #353b41;
+  --ink: #eef0ea;
+  --ink-soft: #b3b9bf;
+  --ink-faint: #9aa1a7;
+  --hi: #ff5a52;
+  --hi-ink: #121518;
+  --mid: #7f868c;
+  --lo: #6b95ff;
+  --btn: #eef0ea;
+  --btn-ink: #121518;
+  --focus: #6b95ff;
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-pitch: var(--pitch);
-  --color-turf: var(--turf);
-  --color-turf-2: var(--turf-2);
+  --color-canvas: var(--canvas);
+  --color-paper: var(--paper);
+  --color-wash: var(--wash);
   --color-line: var(--line);
-  --color-chalk: var(--chalk);
-  --color-chalk-dim: var(--chalk-dim);
-  --color-chalk-faint: var(--chalk-faint);
-  --color-flood: var(--flood);
-  --color-flood-ink: var(--flood-ink);
-  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-hi: var(--hi);
+  --color-hi-ink: var(--hi-ink);
   --color-mid: var(--mid);
+  --color-lo: var(--lo);
   --font-sans: var(--font);
 }
 
 html {
-  background: var(--pitch);
-  color: var(--chalk);
+  background: var(--canvas);
+  color: var(--ink);
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  scroll-padding-top: 72px;
 }
 
 body {
-  background: var(--pitch);
+  background: var(--canvas);
   min-height: 100dvh;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: var(--flood);
-  color: var(--flood-ink);
+  background: var(--ink);
+  color: var(--canvas);
 }
 
 :focus-visible {
@@ -111,19 +98,13 @@ body {
 @layer components {
 /* ---------- Type system ---------- */
 
-/* Player names, big numbers: Archivo at its narrowest, heavy. */
+/* Headlines, player names, big numbers: Bricolage at its narrowest, heavy. */
 .display {
   font-family: var(--font);
-  font-stretch: 62%;
-  font-variation-settings: "wdth" 62;
+  font-variation-settings: "wdth" 75, "opsz" 96;
   font-weight: 800;
   line-height: 0.88;
-  letter-spacing: -0.01em;
-}
-
-.condensed {
-  font-stretch: 75%;
-  font-variation-settings: "wdth" 75;
+  letter-spacing: -0.03em;
 }
 
 .num {
@@ -141,10 +122,11 @@ body {
   max-width: var(--max);
   margin-inline: auto;
   padding-inline: var(--gutter);
+  box-sizing: border-box;
 }
 
 .sheet {
-  background: var(--turf);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
@@ -158,44 +140,46 @@ body {
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: transparent;
-  color: var(--chalk);
+  color: var(--ink);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
   transition: background-color 120ms, border-color 120ms;
 }
 .btn:hover {
-  border-color: var(--chalk-faint);
+  border-color: var(--ink);
 }
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 .btn-primary {
-  background: var(--flood);
-  border-color: var(--flood);
-  color: var(--flood-ink);
+  background: var(--btn);
+  border-color: var(--btn);
+  color: var(--btn-ink);
 }
 .btn-primary:hover {
-  filter: brightness(1.06);
-  border-color: var(--flood);
+  opacity: 0.88;
+  border-color: var(--btn);
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.65rem;
+  min-height: 36px;
+  padding: 0.2rem 0.8rem;
   border-radius: 999px;
   border: 1px solid var(--line);
-  font-size: 0.82rem;
-  color: var(--chalk-dim);
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
   white-space: nowrap;
 }
 .chip[aria-pressed="true"] {
-  border-color: var(--flood);
-  color: var(--chalk);
-  background: color-mix(in srgb, var(--flood) 14%, transparent);
+  border-color: var(--btn);
+  background: var(--btn);
+  color: var(--btn-ink);
 }
 
 .field {
@@ -203,28 +187,38 @@ body {
   min-height: 48px;
   padding: 0.7rem 0.9rem;
   border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--turf);
-  color: var(--chalk);
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
   font: inherit;
 }
 .field::placeholder {
-  color: var(--chalk-faint);
+  color: var(--ink-faint);
 }
 .field:focus {
   outline: none;
-  border-color: var(--flood);
+  border-color: var(--ink);
 }
 
 .muted {
-  color: var(--chalk-dim);
+  color: var(--ink-soft);
 }
 .faint {
-  color: var(--chalk-faint);
+  color: var(--ink-faint);
+}
+
+/* Section headings inside pages. */
+.section-title {
+  font-family: var(--font);
+  font-variation-settings: "wdth" 75, "opsz" 96;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-size: clamp(2.5rem, 5vw, 4rem);
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--turf-2), var(--line), var(--turf-2));
+  background: linear-gradient(90deg, var(--wash), var(--line), var(--wash));
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
   border-radius: var(--radius);
@@ -234,15 +228,25 @@ body {
     background-position: -200% 0;
   }
 }
-
-/* Pitch markings used once, behind the landing headline. */
-.pitch-lines {
-  background-image:
-    radial-gradient(circle at 50% 100%, transparent 119px, var(--line) 120px, var(--line) 121px, transparent 122px),
-    linear-gradient(to right, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
-  background-repeat: no-repeat;
 }
 
+/* Pizza chart entry: one orchestrated moment, CSS only. */
+.pizza-wedge {
+  animation: pizza-grow 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.pizza-badge {
+  animation: pizza-fade 300ms ease-out both;
+}
+@keyframes pizza-grow {
+  from {
+    transform: scale(0.25);
+    opacity: 0;
+  }
+}
+@keyframes pizza-fade {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -258,20 +262,20 @@ body {
 /* ---------- Print: the dossier as a PDF ---------- */
 @media print {
   :root {
-    --pitch: #fff;
-    --turf: #fff;
-    --turf-2: #f2f2f2;
-    --line: #cfcfcf;
-    --chalk: #111;
-    --chalk-dim: #333;
-    --chalk-faint: #666;
-    --flood: #a76d00;
+    --canvas: #fff;
+    --paper: #fff;
+    --wash: #eee;
+    --line: #ccc;
+    --ink: #111;
+    --ink-soft: #333;
+    --ink-faint: #555;
     color-scheme: light;
   }
   .no-print {
     display: none !important;
   }
-  .sheet {
+  .sheet,
+  section {
     break-inside: avoid;
   }
   a {

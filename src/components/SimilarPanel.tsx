@@ -41,11 +41,11 @@ export default function SimilarPanel({ playerId, season, lang, strings, yearsLab
   }, [playerId, season, maxAge, outside]);
 
   return (
-    <section aria-labelledby="similar-title" className="sheet p-5 md:p-6">
-      <h2 id="similar-title" className="text-lg font-bold">
+    <section aria-labelledby="similar-title">
+      <h2 id="similar-title" className="section-title">
         {strings.title}
       </h2>
-      <p className="mt-1 text-sm text-chalk-faint">{strings.subtitle}</p>
+      <p className="mt-1 text-sm text-ink-faint">{strings.subtitle}</p>
       <div className="no-print mt-3 flex flex-wrap gap-1.5">
         {[23, 26].map((a) => (
           <button key={a} type="button" className="chip cursor-pointer" aria-pressed={maxAge === a} onClick={() => setMaxAge(maxAge === a ? null : a)}>
@@ -65,22 +65,22 @@ export default function SimilarPanel({ playerId, season, lang, strings, yearsLab
             ))}
           </div>
         )}
-        {hits?.length === 0 && <p className="text-sm text-chalk-dim">{strings.none}</p>}
+        {hits?.length === 0 && <p className="text-sm text-ink-soft">{strings.none}</p>}
         {hits && hits.length > 0 && (
           <ol className="divide-y divide-line">
             {hits.map((h) => (
               <li key={h.id}>
-                <a href={`/${lang}/player/${slugOf(h)}`} className="flex items-center gap-3 py-2.5 hover:text-flood">
-                  <img src={h.photo} alt="" width={36} height={36} loading="lazy" className="h-9 w-9 rounded bg-turf-2 object-cover" />
+                <a href={`/${lang}/player/${slugOf(h)}`} className="flex items-center gap-3 py-2.5 hover:text-hi">
+                  <img src={h.photo} alt="" width={36} height={36} loading="lazy" className="h-9 w-9 rounded bg-wash object-cover" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{h.name}</span>
-                    <span className="block truncate text-xs text-chalk-faint">
+                    <span className="block truncate text-xs text-ink-faint">
                       {[h.team?.name, h.league?.name, h.age ? `${h.age} ${yearsLabel}` : null].filter(Boolean).join(', ')}
                     </span>
                   </span>
                   <span className="text-right">
                     <span className="num block font-semibold">{h.similarity}</span>
-                    <span className="block text-[0.7rem] text-chalk-faint">{strings.match}</span>
+                    <span className="block text-[0.7rem] text-ink-faint">{strings.match}</span>
                   </span>
                 </a>
               </li>

@@ -56,12 +56,7 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
   }
 
   return (
-    <section aria-labelledby="chat-title" className="sheet no-print flex flex-col">
-      <div className="border-b border-line px-5 py-4 md:px-7">
-        <h2 id="chat-title" className="text-xl font-bold">
-          {strings.title}
-        </h2>
-      </div>
+    <section aria-label={strings.title} className="sheet no-print flex flex-col overflow-hidden">
 
       <div ref={scroller} className="max-h-[560px] min-h-[240px] flex-1 space-y-5 overflow-y-auto px-5 py-5 md:px-7" aria-live="polite">
         <Bubble role="assistant">
@@ -78,7 +73,7 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
                 return (
                   <span key={i} className="chip mb-2 mr-1.5 text-xs">
                     <span
-                      className={`inline-block h-1.5 w-1.5 rounded-full ${done ? 'bg-flood' : 'animate-pulse bg-chalk-faint'}`}
+                      className={`inline-block h-1.5 w-1.5 rounded-full ${done ? 'bg-hi' : 'animate-pulse bg-ink-faint'}`}
                       aria-hidden="true"
                     />
                     {strings.tools[name] ?? name}
@@ -92,16 +87,16 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
 
         {status === 'submitted' && (
           <Bubble role="assistant">
-            <p className="text-chalk-faint">{strings.thinking}</p>
+            <p className="text-ink-faint">{strings.thinking}</p>
           </Bubble>
         )}
-        {error && <p className="text-sm text-card">{limitHit ? strings.limit : strings.error}</p>}
+        {error && <p className="text-sm text-lo">{limitHit ? strings.limit : strings.error}</p>}
       </div>
 
       {messages.length < 2 && (
         <div className="flex flex-wrap gap-2 px-5 pb-4 md:px-7">
           {strings.suggestions.map((s) => (
-            <button key={s} type="button" className="chip cursor-pointer whitespace-normal text-left hover:text-chalk" onClick={() => ask(fill(s))} disabled={busy}>
+            <button key={s} type="button" className="chip cursor-pointer whitespace-normal text-left hover:text-ink" onClick={() => ask(fill(s))} disabled={busy}>
               {fill(s)}
             </button>
           ))}
@@ -139,7 +134,7 @@ function Bubble({ role, children }: { role: string; children: React.ReactNode })
   const user = role === 'user';
   return (
     <div className={`flex ${user ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[88%] rounded-lg px-4 py-3 leading-relaxed ${user ? 'bg-turf-2' : 'border border-line'}`}>{children}</div>
+      <div className={`max-w-[88%] rounded-lg px-4 py-3 leading-relaxed ${user ? 'bg-wash' : 'border border-line'}`}>{children}</div>
     </div>
   );
 }
