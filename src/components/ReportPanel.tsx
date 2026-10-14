@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { RefreshCw, ShieldCheck, Sparkles, Target, TrendingDown, TrendingUp, TriangleAlert, Users } from 'lucide-react';
+import { PERSONA_ICON } from './icons';
 import type { StoredReport } from '../lib/ai/report';
 import type { Persona } from '../lib/ai/schema';
 import type { Dict } from '../lib/i18n';
@@ -83,6 +85,10 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
         <div className="no-print flex flex-wrap gap-1.5" role="group" aria-label={strings.persona}>
           {(Object.keys(strings.personas) as Persona[]).map((p) => (
             <button key={p} type="button" className="chip cursor-pointer" aria-pressed={persona === p} onClick={() => choosePersona(p)}>
+              {(() => {
+                const Icon = PERSONA_ICON[p];
+                return Icon ? <Icon size={15} aria-hidden="true" /> : null;
+              })()}
               {strings.personas[p]}
             </button>
           ))}
@@ -94,6 +100,7 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
         {state.kind === 'empty' && (
           <div className="flex flex-col items-start gap-3 rounded-[var(--radius)] border border-dashed border-line px-6 py-10">
             <button type="button" className="btn btn-primary min-h-[52px] px-6 text-base" onClick={() => load()}>
+              <Sparkles size={18} aria-hidden="true" />
               {strings.generate}
             </button>
           </div>
@@ -106,7 +113,10 @@ export default function ReportPanel({ playerId, season, lang, playerName, metric
         )}
         {state.kind === 'error' && (
           <div className="flex flex-col items-start gap-3 py-4">
-            <p className="text-ink-soft">{state.message}</p>
+            <p className="flex items-center gap-2 text-ink-soft">
+              <TriangleAlert size={18} aria-hidden="true" />
+              {state.message}
+            </p>
             <button type="button" className="btn" onClick={() => load()}>
               {strings.generate}
             </button>
@@ -135,7 +145,8 @@ function ReportBody({
   const problems = [...data.guard.unknownNumbers, ...data.guard.unknownMetrics];
   return (
     <article aria-label={`${strings.title}: ${playerName}`}>
-      <p className="text-ink-soft">
+      <p className="flex items-center gap-2 text-ink-soft">
+        <Target size={17} aria-hidden="true" />
         {strings.role}: <span className="font-semibold text-ink">{r.idealRole}</span>
       </p>
       <p className="mt-3 max-w-[30ch] text-[clamp(1.6rem,3.2vw,2.5rem)] font-semibold leading-[1.15] tracking-[-0.015em] sm:max-w-[38ch]">{r.headline}</p>
@@ -159,7 +170,10 @@ function ReportBody({
         <div className="space-y-5">
           {r.comparablePlayers.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-ink-faint">{strings.comparables}</h3>
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-faint">
+                <Users size={15} aria-hidden="true" />
+                {strings.comparables}
+              </h3>
               <p className="mt-1.5 text-[1.05rem]">{r.comparablePlayers.join(', ')}</p>
             </div>
           )}
@@ -179,6 +193,7 @@ function ReportBody({
             </p>
           </div>
           <button type="button" className="btn no-print min-h-[40px] px-4 text-sm" onClick={onRegenerate}>
+            <RefreshCw size={15} aria-hidden="true" />
             {strings.regenerate}
           </button>
         </div>
@@ -201,7 +216,11 @@ function TraitList({
   return (
     <div>
       <h3 className="flex items-center gap-2.5 text-xl font-bold">
-        <span className="inline-block h-3 w-3 rounded-full" style={{ background: tone === 'good' ? 'var(--hi)' : 'var(--lo)' }} aria-hidden="true" />
+        {tone === 'good' ? (
+          <TrendingUp size={22} style={{ color: 'var(--good)' }} aria-hidden="true" />
+        ) : (
+          <TrendingDown size={22} style={{ color: 'var(--bad)' }} aria-hidden="true" />
+        )}
         {title}
       </h3>
       <ul className="mt-3">
@@ -236,9 +255,5 @@ function ReportSkeleton() {
 }
 
 function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hi)" strokeWidth="2.5" aria-hidden="true">
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
+  return <ShieldCheck size={17} style={{ color: 'var(--good)' }} aria-hidden="true" />;
 }

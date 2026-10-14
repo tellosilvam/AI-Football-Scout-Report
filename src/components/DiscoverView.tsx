@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Filter, SearchX, Sparkles, TriangleAlert, X } from 'lucide-react';
 import type { DiscoverInput } from '../lib/ai/tools';
 import type { DiscoverHit } from '../lib/football/service';
 import type { Dict } from '../lib/i18n';
@@ -75,6 +76,7 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
         </label>
         <input id="discover-q" className="field min-h-[56px] text-lg" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={strings.placeholder} maxLength={300} />
         <button className="btn btn-primary min-h-[56px] px-6" type="submit" disabled={state === 'loading' || query.trim().length < 3}>
+          <Sparkles size={18} aria-hidden="true" />
           {strings.run}
         </button>
       </form>
@@ -89,6 +91,7 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
               run({ query: ex });
             }}
           >
+            <Sparkles size={14} aria-hidden="true" />
             {ex}
           </button>
         ))}
@@ -96,11 +99,19 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
 
       <div className="mt-10" aria-live="polite" aria-busy={state === 'loading'}>
         {state === 'loading' && <div className="skeleton h-72" aria-hidden="true" />}
-        {state === 'error' && <p className="text-ink-soft">{errorText}</p>}
+        {state === 'error' && (
+          <p className="flex items-center gap-2 text-ink-soft">
+            <TriangleAlert size={18} aria-hidden="true" />
+            {errorText}
+          </p>
+        )}
         {state === 'idle' && result && f && (
           <>
             <div className="sheet p-4">
-              <p className="text-sm text-ink-faint">{strings.interpreted}</p>
+              <p className="flex items-center gap-1.5 text-sm text-ink-faint">
+                <Filter size={15} aria-hidden="true" />
+                {strings.interpreted}
+              </p>
               {result.explanation && <p className="mt-1">{result.explanation}</p>}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {f.position && <FilterChip label={`${strings.filters.position}: ${positions[f.position]}`} onRemove={() => drop((x) => delete x.position)} />}
@@ -133,14 +144,17 @@ export default function DiscoverView({ lang, strings, positions, metricLabels, l
               {strings.results.replace('{n}', String(result.hits.length)).replace('{pools}', String(result.poolsSearched))}
             </p>
             {result.hits.length === 0 ? (
-              <p className="mt-3 text-ink-soft">{strings.none}</p>
+              <p className="mt-3 flex items-center gap-2 text-ink-soft">
+                <SearchX size={18} aria-hidden="true" />
+                {strings.none}
+              </p>
             ) : (
               <ol className="mt-3 divide-y divide-line border-y border-line">
                 {result.hits.map((h, i) => {
                   const shown = (f.minPercentiles?.map((m) => m.metric) ?? Object.keys(h.percentiles)).slice(0, 4);
                   return (
                     <li key={h.player.id}>
-                      <a href={`/${lang}/player/${slugOf(h.player)}`} className="grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3 hover:text-hi">
+                      <a href={`/${lang}/player/${slugOf(h.player)}`} className="grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3 hover:underline">
                         <span className="num text-ink-faint">{i + 1}</span>
                         <img src={h.player.photo} alt="" width={44} height={44} loading="lazy" className="h-11 w-11 rounded bg-wash object-cover" />
                         <span className="min-w-0">
@@ -178,7 +192,7 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
     <span className="chip" aria-pressed="true">
       {label}
       <button type="button" onClick={onRemove} className="-mr-1 ml-0.5 rounded px-1 opacity-70 hover:opacity-100" aria-label={`Remove ${label}`}>
-        ×
+        <X size={14} aria-hidden="true" />
       </button>
     </span>
   );

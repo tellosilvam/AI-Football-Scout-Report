@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Globe, SearchX, UserRound } from 'lucide-react';
 import type { Dict } from '../lib/i18n';
 import { slugOf } from './SearchBox';
 
@@ -49,10 +50,12 @@ export default function SimilarPanel({ playerId, season, lang, strings, yearsLab
       <div className="no-print mt-3 flex flex-wrap gap-1.5">
         {[23, 26].map((a) => (
           <button key={a} type="button" className="chip cursor-pointer" aria-pressed={maxAge === a} onClick={() => setMaxAge(maxAge === a ? null : a)}>
+            <UserRound size={15} aria-hidden="true" />
             {strings.maxAge} {a}
           </button>
         ))}
         <button type="button" className="chip cursor-pointer" aria-pressed={outside} onClick={() => setOutside((v) => !v)}>
+          <Globe size={15} aria-hidden="true" />
           {strings.outsideBig5}
         </button>
       </div>
@@ -65,12 +68,17 @@ export default function SimilarPanel({ playerId, season, lang, strings, yearsLab
             ))}
           </div>
         )}
-        {hits?.length === 0 && <p className="text-sm text-ink-soft">{strings.none}</p>}
+        {hits?.length === 0 && (
+          <p className="flex items-center gap-2 text-sm text-ink-soft">
+            <SearchX size={16} aria-hidden="true" />
+            {strings.none}
+          </p>
+        )}
         {hits && hits.length > 0 && (
           <ol className="divide-y divide-line">
             {hits.map((h) => (
               <li key={h.id}>
-                <a href={`/${lang}/player/${slugOf(h)}`} className="flex items-center gap-3 py-2.5 hover:text-hi">
+                <a href={`/${lang}/player/${slugOf(h)}`} className="flex items-center gap-3 py-2.5 hover:underline">
                   <img src={h.photo} alt="" width={36} height={36} loading="lazy" className="h-9 w-9 rounded bg-wash object-cover" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{h.name}</span>

@@ -9,6 +9,8 @@ import { featuredProfile } from '../../lib/football/service';
 import { slugify } from '../../lib/football/normalize';
 import { bandVar, categoryScores, peerNote, seasonText, slicesFor } from '../../lib/view';
 import evals from '../../../evals/results.json';
+import { CircleCheck, Hourglass, LoaderCircle, Sparkles } from 'lucide-react';
+import { CATEGORY_ICON, PROOF_ICONS, STEP_ICONS } from '../../components/icons';
 
 export const prerender = false;
 
@@ -30,18 +32,19 @@ let nextAssigned = false;
 const leagues = pools.map(({ league, pool }) => {
   const s = pool?.status;
   if (s?.complete) {
-    return { league, width: 100, ready: true, label: fmt(d.landing.leagueStatus.ready, { n: (pool?.players.length ?? 0).toLocaleString(lang) }) };
+    return { league, width: 100, ready: true, state: 'ready', label: fmt(d.landing.leagueStatus.ready, { n: (pool?.players.length ?? 0).toLocaleString(lang) }) };
   }
   if (s && s.pagesLoaded > 0) {
     nextAssigned = true;
     const width = Math.round((s.pagesLoaded / (s.totalPages || 20)) * 100);
-    return { league, width, ready: false, label: fmt(d.landing.leagueStatus.loading, { done: s.pagesLoaded, total: s.totalPages ?? '?' }) };
+    return { league, width, ready: false, state: 'loading', label: fmt(d.landing.leagueStatus.loading, { done: s.pagesLoaded, total: s.totalPages ?? '?' }) };
   }
   const label = nextAssigned ? d.landing.leagueStatus.queued : d.landing.leagueStatus.next;
   nextAssigned = true;
-  return { league, width: 0, ready: false, label };
+  return { league, width: 0, ready: false, state: 'queued', label };
 });
 
+const statusIcon = { ready: CircleCheck, loading: LoaderCircle, queued: Hourglass } as const;
 const proof = [
   { value: evals.guardPass, label: d.landing.proof.verified },
   { value: evals.firstTry, label: d.landing.proof.firstTry },
@@ -59,7 +62,10 @@ const proof = [
         <SearchBox client:load lang={lang} strings={searchStrings} size="lg" />
       </div>
       <p class="mt-4 text-[0.95rem]">
-        <a href={`/${lang}/discover`} class="text-ink-soft underline decoration-line underline-offset-4 hover:text-ink">{d.landing.orDiscover}</a>
+        <a href={`/${lang}/discover`} class="inline-flex items-center gap-2 text-ink-soft underline decoration-line underline-offset-4 hover:text-ink">
+          <Sparkles size={16} aria-hidden="true" />
+          {d.landing.orDiscover}
+        </a>
       </p>
     </div>
 
@@ -93,7 +99,13 @@ const proof = [
           {scores.map((c) => (
             <div class="flex items-baseline gap-4 py-6 pr-4">
               <dt class="order-2 flex flex-col">
-                <span class="text-lg font-bold">{c.name}</span>
+                <span class="inline-flex items-center gap-2 text-lg font-bold">
+                  {(() => {
+                    const Icon = CATEGORY_ICON[c.key];
+                    return Icon ? <Icon size={18} aria-hidden="true" /> : null;
+                  })()}
+                  {c.name}
+                </span>
                 <span class="hidden text-sm text-ink-faint sm:block">{c.metrics}</span>
               </dt>
               <dd class="display num order-1 m-0 text-[clamp(3.5rem,7vw,6rem)]" style={`color: ${bandVar(c.value)}`}>
@@ -110,13 +122,23 @@ const proof = [
     <h2 id="how" class="section-title max-w-3xl">{d.landing.stepsTitle}</h2>
     <ol class="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
       {
-        d.landing.steps.map((s, i) => (
+        d.landing.steps.map((s, i) => {
+          const Icon = STEP_ICONS[i];
+          return (
           <li class="border-t-2 border-ink pt-5">
-            <span class="display num text-5xl text-hi">{i + 1}</span>
+            <span class="flex items-center justify-between">
+              <span class="display num text-5xl">{i + 1}</span>
+              {Icon && (
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-paper">
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+              )}
+            </span>
             <h3 class="mt-3 text-xl font-bold">{s.title}</h3>
             <p class="mt-2 text-ink-soft">{s.body}</p>
           </li>
-        ))
+          );
+        })
       }
     </ol>
   </section>
@@ -129,12 +151,16 @@ const proof = [
       </div>
       <dl class="grid grid-cols-2 gap-px self-start overflow-hidden rounded-[var(--radius)] border border-line bg-line">
         {
-          proof.map((p) => (
+          proof.map((p, i) => {
+            const Icon = PROOF_ICONS[i];
+            return (
             <div class="bg-paper p-6 md:p-7">
+              {Icon && <Icon size={22} className="mb-4 text-ink-soft" aria-hidden="true" />}
               <dt class="display num text-[clamp(2.75rem,5vw,4.25rem)]">{p.value}</dt>
               <dd class="m-0 mt-2 text-ink-soft">{p.label}</dd>
             </div>
-          ))
+            );
+          })
         }
       </dl>
     </div>
@@ -145,16 +171,22 @@ const proof = [
       <h2 id="leagues" class="text-2xl font-bold">{d.landing.leaguesTitle}</h2>
       <ul class="mt-6">
         {
-          leagues.map(({ league, width, ready, label }) => (
+          leagues.map(({ league, width, ready, state, label }) => {
+            const Status = statusIcon[state as keyof typeof statusIcon];
+            return (
             <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 border-b border-line py-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.6fr)_minmax(0,1.6fr)_13rem]">
               <span class="display text-[2rem]">{league.name}</span>
               <span class="text-ink-faint">{league.country}</span>
               <span class="col-span-2 block h-1.5 overflow-hidden rounded-full bg-wash md:col-span-1" aria-hidden="true">
-                <span class="block h-full rounded-full" style={`width: ${width}%; background: ${ready ? 'var(--hi)' : 'var(--mid)'}`} />
+                <span class="block h-full rounded-full" style={`width: ${width}%; background: ${ready ? 'var(--good)' : 'var(--mid)'}`} />
               </span>
-              <span class="num col-span-2 text-ink-soft md:col-span-1 md:text-right">{label}</span>
+              <span class="num col-span-2 inline-flex items-center gap-2 text-ink-soft md:col-span-1 md:justify-end">
+                <Status size={16} className={ready ? 'text-good' : ''} aria-hidden="true" />
+                {label}
+              </span>
             </li>
-          ))
+            );
+          })
         }
       </ul>
     </div>

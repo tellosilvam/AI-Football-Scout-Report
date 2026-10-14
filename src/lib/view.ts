@@ -87,4 +87,4 @@ export function categoryScores(slices: PizzaSlice[]): CategoryScore[] {
 
 /** Percentile band → CSS colour token (same thresholds as the chart). */
 export const bandVar = (p: number | null) =>
-  p === null ? 'var(--line)' : p >= 67 ? 'var(--hi)' : p >= 34 ? 'var(--mid)' : 'var(--lo)';
+  p === null ? 'var(--line)' : p >= 67 ? 'var(--good)' : p >= 34 ? 'var(--mid)' : 'var(--bad)';

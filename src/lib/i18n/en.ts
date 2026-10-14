@@ -50,7 +50,7 @@ export const en = {
     aiGrade: 'AI grade',
     avgPercentile: 'average percentile',
     rateNote: 'Per 90 minutes unless shown as a rate.',
-    legend: 'Red 67 and above, grey 34 to 66, blue 33 and below.',
+    legend: 'Green 67 and above, grey 34 to 66, red 33 and below.',
     sectionsLabel: 'Dossier sections',
     season: 'Season',
     minutes: 'Minutes',

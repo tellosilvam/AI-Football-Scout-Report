@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { ChevronRight, LoaderCircle, Search, SearchX, TriangleAlert } from 'lucide-react';
 import { slugify } from '../lib/football/normalize';
 import type { PlayerSummary } from '../lib/football/types';
 
@@ -94,17 +95,15 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
         {strings.label}
       </label>
       <div className="relative">
-        <svg
-          className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint ${big ? 'h-6 w-6' : 'h-5 w-5'}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" />
-        </svg>
+        {state === 'loading' ? (
+          <LoaderCircle
+            size={big ? 24 : 20}
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 animate-spin text-ink-faint"
+            aria-hidden="true"
+          />
+        ) : (
+          <Search size={big ? 24 : 20} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
+        )}
         <input
           id={`${listId}-input`}
           role="combobox"
@@ -131,8 +130,18 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
         <div className="sheet absolute left-0 right-0 z-40 mt-2 max-h-[min(70vh,440px)] overflow-y-auto p-1 shadow-2xl shadow-black/40">
           {q.trim().length < 3 && <p className="px-3 py-3 text-sm text-ink-faint">{strings.min}</p>}
           {state === 'loading' && <p className="px-3 py-3 text-sm text-ink-faint">{strings.loading}</p>}
-          {state === 'error' && <p className="px-3 py-3 text-sm text-lo">{strings.error}</p>}
-          {state === 'done' && results.length === 0 && <p className="px-3 py-3 text-sm text-ink-soft">{strings.empty}</p>}
+          {state === 'error' && (
+            <p className="flex items-center gap-2 px-3 py-3 text-sm text-bad">
+              <TriangleAlert size={16} aria-hidden="true" />
+              {strings.error}
+            </p>
+          )}
+          {state === 'done' && results.length === 0 && (
+            <p className="flex items-center gap-2 px-3 py-3 text-sm text-ink-soft">
+              <SearchX size={16} aria-hidden="true" />
+              {strings.empty}
+            </p>
+          )}
           <ul id={listId} role="listbox" aria-label={strings.label}>
             {results.map((p, i) => (
               <li
@@ -154,6 +163,7 @@ export default function SearchBox({ lang, strings, onPick, size = 'md', autoFocu
                   </span>
                 </span>
                 {p.team?.logo && <img src={p.team.logo} alt="" width={22} height={22} loading="lazy" className="h-[22px] w-[22px] object-contain" />}
+                <ChevronRight size={16} className={i === active ? 'text-ink' : 'text-line'} aria-hidden="true" />
               </li>
             ))}
           </ul>

@@ -13,6 +13,8 @@ import { idFromSlug, slugify } from '../../../lib/football/normalize';
 import { getCachedReport } from '../../../lib/ai/report';
 import { bandVar, categoryScores, dataErrorMessage, peerNote, poolWarning, seasonText, slicesFor } from '../../../lib/view';
 import type { PlayerProfile } from '../../../lib/football/types';
+import { TriangleAlert } from 'lucide-react';
+import { CATEGORY_ICON, FACT_ICON, SECTION_ICON } from '../../../components/icons';
 
 export const prerender = false;
 
@@ -48,12 +50,12 @@ const cached = profile ? await getCachedReport(profile, lang, 'analyst').catch((
 const warning = profile ? poolWarning(profile, lang) : null;
 const facts = profile
   ? [
-      { label: d.player.minutes, value: profile.minutes.toLocaleString(lang) },
-      { label: d.player.apps, value: `${profile.appearances}` },
-      { label: d.player.starts.charAt(0).toUpperCase() + d.player.starts.slice(1), value: `${profile.starts}` },
-      { label: d.player.goals, value: `${profile.totals.goals}` },
-      { label: d.player.assists, value: `${profile.totals.assists}` },
-      { label: d.player.rating, value: profile.rating ? profile.rating.toFixed(2) : '—' },
+      { label: d.player.minutes, value: profile.minutes.toLocaleString(lang), Icon: FACT_ICON.minutes },
+      { label: d.player.apps, value: `${profile.appearances}`, Icon: FACT_ICON.apps },
+      { label: d.player.starts.charAt(0).toUpperCase() + d.player.starts.slice(1), value: `${profile.starts}`, Icon: FACT_ICON.starts },
+      { label: d.player.goals, value: `${profile.totals.goals}`, Icon: FACT_ICON.goals },
+      { label: d.player.assists, value: `${profile.totals.assists}`, Icon: FACT_ICON.assists },
+      { label: d.player.rating, value: profile.rating ? profile.rating.toFixed(2) : '—', Icon: FACT_ICON.rating },
     ]
   : [];
 const sections = [
@@ -92,7 +94,7 @@ const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit 
             </div>
             <div class="min-w-0">
               <p class="text-lg text-ink-soft">
-                {profile.position && <span class="font-bold text-hi">{d.positions[profile.position]}</span>}
+                {profile.position && <span class="font-bold text-ink">{d.positions[profile.position]}</span>}
                 {profile.position && ', '}
                 {profile.team?.name}, {profile.league?.name} {seasonText(profile)}
               </p>
@@ -110,7 +112,10 @@ const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit 
             {
               facts.map((f) => (
                 <div class="py-4">
-                  <dt class="text-sm text-ink-faint">{f.label}</dt>
+                  <dt class="inline-flex items-center gap-1.5 text-sm text-ink-faint">
+                    <f.Icon size={15} aria-hidden="true" />
+                    {f.label}
+                  </dt>
                   <dd class="display num m-0 mt-1 text-[clamp(2rem,3.4vw,2.85rem)] leading-none">{f.value}</dd>
                 </div>
               ))
@@ -126,7 +131,13 @@ const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit 
                       {c.value ?? '—'}
                     </dd>
                     <dt class="flex flex-col">
-                      <span class="text-lg font-bold">{c.name}</span>
+                      <span class="inline-flex items-center gap-2 text-lg font-bold">
+                        {(() => {
+                          const Icon = CATEGORY_ICON[c.key];
+                          return Icon ? <Icon size={18} aria-hidden="true" /> : null;
+                        })()}
+                        {c.name}
+                      </span>
                       <span class="text-[0.8rem] text-ink-faint">{d.player.avgPercentile}</span>
                     </dt>
                   </div>
@@ -142,7 +153,11 @@ const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit 
             <div class="-mx-2 flex overflow-x-auto">
               {
                 sections.map((s) => (
-                  <a href={`#${s.id}`} class="whitespace-nowrap rounded-full px-3.5 py-2.5 text-[0.95rem] font-medium text-ink-soft hover:text-ink">
+                  <a href={`#${s.id}`} class="inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2.5 text-[0.95rem] font-medium text-ink-soft hover:bg-wash hover:text-ink">
+                    {(() => {
+                      const Icon = SECTION_ICON[s.id];
+                      return Icon ? <Icon size={16} aria-hidden="true" /> : null;
+                    })()}
                     {s.label}
                   </a>
                 ))
@@ -191,10 +206,21 @@ const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit 
           <div>
             <h2 class="section-title">{d.player.percentiles}</h2>
             <p class="mt-3 text-ink-soft">{d.player.rateNote}</p>
-            {warning && <p class="mt-4 rounded-[var(--radius)] border border-line bg-paper px-4 py-3 text-sm text-ink-soft">{warning}</p>}
+            {warning && (
+              <p class="mt-4 flex items-start gap-2.5 rounded-[var(--radius)] border border-line bg-paper px-4 py-3 text-sm text-ink-soft">
+                <TriangleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+                {warning}
+              </p>
+            )}
             {groups.map((g) => (
               <div class="mt-7">
-                <h3 class="text-sm font-semibold text-ink-faint">{g.name}</h3>
+                <h3 class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-faint">
+                  {(() => {
+                    const Icon = CATEGORY_ICON[g.key];
+                    return Icon ? <Icon size={15} aria-hidden="true" /> : null;
+                  })()}
+                  {g.name}
+                </h3>
                 <table class="mt-1 w-full border-collapse text-[0.98rem]">
                   <tbody>
                     {g.rows.map((m) => (

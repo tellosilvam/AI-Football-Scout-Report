@@ -3,6 +3,7 @@ import '../styles/global.css';
 import type { Lang } from '../lib/ai/schema';
 import { LANG_LABEL, t } from '../lib/i18n';
 import { LANGS } from '../lib/ai/schema';
+import { ArrowLeftRight, ArrowUpRight, Bookmark, ChartColumn, CodeXml, Globe, Moon, Sparkles, Sun } from 'lucide-react';
 
 interface Props {
   lang: Lang;
@@ -25,9 +26,9 @@ const restOfPath = Astro.url.pathname.split('/').slice(2).join('/');
 const altHref = (l: Lang) => `/${l}/${restOfPath}${Astro.url.search}`;
 
 const nav = [
-  { key: 'discover', href: `/${lang}/discover`, label: d.nav.discover },
-  { key: 'compare', href: `/${lang}/compare`, label: d.nav.compare },
-  { key: 'shortlist', href: `/${lang}/shortlist`, label: d.nav.shortlist },
+  { key: 'discover', href: `/${lang}/discover`, label: d.nav.discover, Icon: Sparkles },
+  { key: 'compare', href: `/${lang}/compare`, label: d.nav.compare, Icon: ArrowLeftRight },
+  { key: 'shortlist', href: `/${lang}/shortlist`, label: d.nav.shortlist, Icon: Bookmark },
 ] as const;
 ---
 
@@ -72,22 +73,23 @@ const nav = [
                 href={item.href}
                 aria-current={active === item.key ? 'page' : undefined}
                 class:list={[
-                  'rounded-full px-3.5 py-2 text-[0.95rem] font-medium whitespace-nowrap',
+                  'inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.95rem] font-medium whitespace-nowrap',
                   active === item.key ? 'bg-ink text-canvas' : 'text-ink-soft hover:text-ink',
                 ]}
               >
+                <item.Icon size={16} aria-hidden="true" />
                 {item.label}
               </a>
             ))
           }
         </nav>
         <details class="relative ml-auto sm:ml-0">
-          <summary class="btn min-h-[40px] px-3 list-none cursor-pointer" aria-label="Language">{lang.toUpperCase()}</summary>
+          <summary class="btn min-h-[40px] gap-1.5 px-3 list-none cursor-pointer" aria-label="Language"><Globe size={16} aria-hidden="true" />{lang.toUpperCase()}</summary>
           <ul class="sheet absolute right-0 z-30 mt-2 w-40 p-1">
             {
               LANGS.map((l) => (
                 <li>
-                  <a href={altHref(l)} hreflang={l} lang={l} class:list={['block rounded px-3 py-2', l === lang ? 'text-hi' : 'hover:bg-wash']}>
+                  <a href={altHref(l)} hreflang={l} lang={l} class:list={['block rounded px-3 py-2', l === lang ? 'font-bold bg-wash' : 'hover:bg-wash']}>
                     {LANG_LABEL[l]}
                   </a>
                 </li>
@@ -96,9 +98,8 @@ const nav = [
           </ul>
         </details>
         <button id="theme-toggle" class="btn min-h-[40px] px-3" type="button" aria-label="Toggle colour theme">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path>
-          </svg>
+          <Moon size={18} className="when-light" aria-hidden="true" />
+          <Sun size={18} className="when-dark" aria-hidden="true" />
         </button>
       </div>
     </header>
@@ -110,10 +111,10 @@ const nav = [
     <footer class="no-print mt-24 border-t border-line">
       <div class="wrap flex flex-col gap-3 py-8 text-sm text-ink-faint md:flex-row md:items-center md:justify-between">
         <p>{d.footer.data} {d.footer.disclaimer}</p>
-        <p class="flex gap-4">
-          <a class="hover:text-ink" href={`/${lang}/stats`}>{d.nav.stats}</a>
-          <a class="hover:text-ink" href="https://github.com/tellosilvam/AI-Football-Scout-Report" rel="noopener">{d.footer.source}</a>
-          <a class="hover:text-ink" href="https://migueltello.site" rel="noopener">{d.footer.by}</a>
+        <p class="flex flex-wrap gap-x-5 gap-y-2">
+          <a class="inline-flex items-center gap-1.5 hover:text-ink" href={`/${lang}/stats`}><ChartColumn size={15} aria-hidden="true" />{d.nav.stats}</a>
+          <a class="inline-flex items-center gap-1.5 hover:text-ink" href="https://github.com/tellosilvam/AI-Football-Scout-Report" rel="noopener"><CodeXml size={15} aria-hidden="true" />{d.footer.source}</a>
+          <a class="inline-flex items-center gap-1.5 hover:text-ink" href="https://migueltello.vercel.app" rel="noopener">{d.footer.by}<ArrowUpRight size={15} aria-hidden="true" /></a>
         </p>
       </div>
     </footer>

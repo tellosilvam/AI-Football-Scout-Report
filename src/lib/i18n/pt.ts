@@ -52,7 +52,7 @@ export const pt: Dict = {
     aiGrade: 'Nota da IA',
     avgPercentile: 'percentil médio',
     rateNote: 'Por 90 minutos, exceto taxas.',
-    legend: 'Vermelho 67 ou mais, cinza de 34 a 66, azul 33 ou menos.',
+    legend: 'Verde 67 ou mais, cinza de 34 a 66, vermelho 33 ou menos.',
     sectionsLabel: 'Seções do dossiê',
     season: 'Temporada',
     minutes: 'Minutos',

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ArrowLeftRight, Bookmark, BookmarkCheck, Check, Link2, Printer } from 'lucide-react';
 import { addToShortlist, inShortlist, onShortlistChange, removeFromShortlist, type ShortlistItem } from '../lib/client/shortlist';
 
 interface Props {
@@ -38,22 +39,23 @@ export default function PlayerActions({ item, compareHref, strings, compact }: P
     <div className="no-print flex flex-wrap gap-2">
       <button
         type="button"
-        className={`btn ${size} ${saved ? 'border-hi text-hi' : ''}`}
+        className={`btn ${size} ${saved ? 'border-ink bg-ink text-canvas' : ''}`}
         aria-pressed={saved}
         onClick={() => (saved ? removeFromShortlist(item.id) : addToShortlist(item))}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M6 3h12v18l-6-4-6 4z" />
-        </svg>
+        {saved ? <BookmarkCheck size={16} aria-hidden="true" /> : <Bookmark size={16} aria-hidden="true" />}
         {saved ? strings.shortlistRemove : strings.shortlistAdd}
       </button>
       <a className={`btn ${size}`} href={compareHref}>
+        <ArrowLeftRight size={16} aria-hidden="true" />
         {strings.compareWith}
       </a>
       <button type="button" className={`btn ${size}`} onClick={share} aria-live="polite">
+        {copied ? <Check size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
         {copied ? strings.copied : strings.share}
       </button>
       <button type="button" className={`btn ${size}`} onClick={() => window.print()}>
+        <Printer size={16} aria-hidden="true" />
         {strings.exportPdf}
       </button>
     </div>

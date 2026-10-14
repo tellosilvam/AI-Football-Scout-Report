@@ -14,8 +14,7 @@ const CANVAS = '#e9eae5';
 const WASH = '#dcded7';
 const INK = '#15181b';
 const SOFT = '#4e545a';
-const HI = '#d62828';
-const band = (p: number) => (p >= 67 ? HI : p >= 34 ? '#9aa0a6' : '#2b59c3');
+const band = (p: number) => (p >= 67 ? '#0b6b35' : p >= 34 ? '#a0a6ab' : '#dc3d33');
 
 type Node = { type: string; props: Record<string, unknown> };
 const h = (type: string, style: Record<string, unknown>, ...children: (Node | string | null | false)[]): Node => ({
@@ -73,7 +72,7 @@ export const GET: APIRoute = async ({ params, url }) => {
         h(
           'div',
           { flexDirection: 'column' },
-          h('div', { fontSize: 30, color: HI }, profile.position ? d.positions[profile.position] : ''),
+          h('div', { fontSize: 30, color: INK }, profile.position ? d.positions[profile.position] : ''),
           h('div', { fontSize: 100, fontFamily: 'Display', letterSpacing: -3, lineHeight: 1 }, profile.name),
           h('div', { fontSize: 30, color: SOFT, marginTop: 8 }, `${profile.team?.name ?? ''}  /  ${profile.league?.name ?? ''} ${seasonLabel(profile.season, profile.leagueId)}`),
         ),
