@@ -54,16 +54,16 @@ export default function CompareView({ lang, initialA, initialB, strings, search,
       </div>
 
       <div aria-live="polite" className="mt-8">
-        {(!a || !b) && <p className="text-chalk-dim">{strings.empty}</p>}
+        {(!a || !b) && <p className="text-ink-soft">{strings.empty}</p>}
         {state === 'loading' && <div className="skeleton h-96" aria-hidden="true" />}
-        {state === 'error' && <p className="text-chalk-dim">{errorText}</p>}
+        {state === 'error' && <p className="text-ink-soft">{errorText}</p>}
         {data && (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <section className="sheet overflow-x-auto p-5 md:p-6" aria-label={strings.metric}>
-              {data.a.leagueId !== data.b.leagueId && <p className="mb-4 text-sm text-chalk-faint">{strings.differentLeagues}</p>}
+              {data.a.leagueId !== data.b.leagueId && <p className="mb-4 text-sm text-ink-faint">{strings.differentLeagues}</p>}
               <table className="w-full min-w-[480px] text-sm">
                 <thead>
-                  <tr className="border-b border-line text-chalk-faint">
+                  <tr className="border-b border-line text-ink-faint">
                     <th className="w-[38%] py-2 text-right font-medium">{data.a.name}</th>
                     <th className="px-3 py-2 font-medium">{strings.metric}</th>
                     <th className="w-[38%] py-2 text-left font-medium">{data.b.name}</th>
@@ -80,7 +80,7 @@ export default function CompareView({ lang, initialA, initialB, strings, search,
                         </td>
                         <td className="px-3 py-2 text-center">
                           <span className="block whitespace-nowrap">{metricLabels[k] ?? k}</span>
-                          <span className="block text-[0.7rem] text-chalk-faint">{categoryOf[k]}</span>
+                          <span className="block text-[0.7rem] text-ink-faint">{categoryOf[k]}</span>
                         </td>
                         <td className="py-2">
                           <Bar value={pb} raw={val(data.b, k)} unit={k.endsWith('_pct') ? 'pct' : 'p90'} align="left" win={pa !== null && pb !== null && pb > pa} />
@@ -129,13 +129,13 @@ function Picker({
 }) {
   return (
     <div className="sheet p-4">
-      <p className="mb-2 text-sm text-chalk-faint">{label}</p>
+      <p className="mb-2 text-sm text-ink-faint">{label}</p>
       {player && (
-        <a href={`/${lang}/player/${slugOf(player)}`} className="mb-3 flex items-center gap-3 hover:text-flood">
-          <img src={player.photo} alt="" width={48} height={48} className="h-12 w-12 rounded bg-turf-2 object-cover" />
+        <a href={`/${lang}/player/${slugOf(player)}`} className="mb-3 flex items-center gap-3 hover:text-hi">
+          <img src={player.photo} alt="" width={48} height={48} className="h-12 w-12 rounded bg-wash object-cover" />
           <span>
             <span className="display block text-3xl">{player.name}</span>
-            <span className="block text-sm text-chalk-faint">{[player.team?.name, player.league?.name].filter(Boolean).join(', ')}</span>
+            <span className="block text-sm text-ink-faint">{[player.team?.name, player.league?.name].filter(Boolean).join(', ')}</span>
           </span>
         </a>
       )}
@@ -147,12 +147,12 @@ function Picker({
 function Bar({ value, raw, unit, align, win }: { value: number | null; raw: number | null; unit: string; align: 'left' | 'right'; win: boolean }) {
   return (
     <span className={`flex items-center gap-2 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
-      <span className={`flex h-2.5 flex-1 overflow-hidden rounded-full bg-turf-2 ${align === 'right' ? 'justify-end' : ''}`}>
+      <span className={`flex h-2.5 flex-1 overflow-hidden rounded-full bg-wash ${align === 'right' ? 'justify-end' : ''}`}>
         <span className="block h-full rounded-full" style={{ width: `${value ?? 0}%`, background: bandColor(value) }} />
       </span>
-      <span className={`num w-14 shrink-0 ${align === 'right' ? 'text-right' : ''} ${win ? 'font-bold text-chalk' : 'text-chalk-dim'}`}>
+      <span className={`num w-14 shrink-0 ${align === 'right' ? 'text-right' : ''} ${win ? 'font-bold text-ink' : 'text-ink-soft'}`}>
         {value ?? '—'}
-        <span className="block text-[0.7rem] font-normal text-chalk-faint">{raw ?? ''}{raw !== null && unit === 'pct' ? '%' : ''}</span>
+        <span className="block text-[0.7rem] font-normal text-ink-faint">{raw ?? ''}{raw !== null && unit === 'pct' ? '%' : ''}</span>
       </span>
     </span>
   );
@@ -162,7 +162,7 @@ function Edges({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
   return (
     <div>
-      <h3 className="mb-1.5 text-sm font-semibold text-chalk-faint">{title}</h3>
+      <h3 className="mb-1.5 text-sm font-semibold text-ink-faint">{title}</h3>
       <ul className="list-disc space-y-1 pl-5 text-sm">
         {items.map((i) => (
           <li key={i}>{i}</li>

@@ -8,6 +8,13 @@ export const pt: Dict = {
   },
   nav: { search: 'Buscar', discover: 'Descobrir', compare: 'Comparar', shortlist: 'Lista', stats: 'Estatísticas', how: 'Como funciona' },
   landing: {
+    scoreboard: 'Percentil médio por categoria',
+    stepsTitle: 'Das estatísticas a um veredito',
+    proofTitle: 'Um olheiro que confere o próprio trabalho',
+    proofLead: 'Cada número de um relatório é conferido com os dados de origem antes de você ver. Se algum não bate, o relatório é reescrito.',
+    proof: { verified: 'relatórios com todos os números verificados', firstTry: 'aprovados na primeira tentativa', avgTime: 'tempo médio de um relatório completo', tools: 'ferramentas que o olheiro pode usar' },
+    leagueStatus: { ready: '{n} jogadores', loading: 'Carregando, {done} de {total} times', next: 'A próxima', queued: 'Na fila' },
+    orDiscover: 'Ou descreva com suas palavras o jogador que você precisa.',
     kicker: 'Dossiê de scouting · Dados da temporada · Análise com IA',
     title: 'Analise qualquer\njogador em segundos.',
     lead: 'Estatísticas reais de 7 ligas, percentis contra jogadores da mesma posição e um olheiro com IA que só cita números que consegue provar.',
@@ -42,6 +49,11 @@ export const pt: Dict = {
     error: 'A busca não está disponível agora.',
   },
   player: {
+    aiGrade: 'Nota da IA',
+    avgPercentile: 'percentil médio',
+    rateNote: 'Por 90 minutos, exceto taxas.',
+    legend: 'Vermelho 67 ou mais, cinza de 34 a 66, azul 33 ou menos.',
+    sectionsLabel: 'Seções do dossiê',
     season: 'Temporada',
     minutes: 'Minutos',
     apps: 'Jogos',
@@ -113,6 +125,7 @@ export const pt: Dict = {
     match: 'similaridade',
   },
   chat: {
+    askLead: 'Ele consulta qualquer jogador, compara dois e busca nas ligas com filtros antes de responder.',
     title: 'Pergunte ao olheiro',
     intro: 'Estudei a temporada de {name}. Pergunte o que quiser: posso consultar, comparar e buscar outros jogadores.',
     placeholder: 'Pergunte sobre este jogador…',

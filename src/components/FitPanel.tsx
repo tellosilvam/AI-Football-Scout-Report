@@ -31,11 +31,11 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
   }
 
   return (
-    <section aria-labelledby="fit-title" className="sheet p-5 md:p-6">
-      <h2 id="fit-title" className="text-lg font-bold">
+    <section aria-labelledby="fit-title">
+      <h2 id="fit-title" className="section-title">
         {strings.title}
       </h2>
-      <p className="mt-1 text-sm text-chalk-faint">{strings.pick}</p>
+      <p className="mt-1 text-sm text-ink-faint">{strings.pick}</p>
       <div className="no-print mt-3 flex flex-wrap gap-1.5" role="group" aria-label={strings.pick}>
         {(Object.keys(strings.styles) as TacticalStyle[]).map((s) => (
           <button key={s} type="button" className="chip cursor-pointer" aria-pressed={style === s} onClick={() => run(s)} disabled={state.loading}>
@@ -46,7 +46,7 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
 
       <div aria-live="polite" className="mt-4">
         {state.loading && <div className="skeleton h-28" aria-hidden="true" />}
-        {state.error && <p className="text-sm text-chalk-dim">{errorText}</p>}
+        {state.error && <p className="text-sm text-ink-soft">{errorText}</p>}
         {state.data && (
           <div>
             <div className="flex items-center gap-4">
@@ -54,8 +54,8 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
               <p className="text-sm leading-relaxed">{state.data.summary}</p>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <List title={strings.pros} items={state.data.pros} color="var(--flood)" />
-              <List title={strings.cons} items={state.data.cons} color="var(--card)" />
+              <List title={strings.pros} items={state.data.pros} color="var(--hi)" />
+              <List title={strings.cons} items={state.data.cons} color="var(--lo)" />
             </div>
           </div>
         )}
@@ -75,13 +75,13 @@ function Gauge({ value }: { value: number }) {
         cy="34"
         r={r}
         fill="none"
-        stroke="var(--flood)"
+        stroke="var(--hi)"
         strokeWidth="6"
         strokeDasharray={`${(c * value) / 100} ${c}`}
         strokeLinecap="round"
         transform="rotate(-90 34 34)"
       />
-      <text x="34" y="34" textAnchor="middle" dominantBaseline="central" className="display num" fontSize="22" fill="var(--chalk)">
+      <text x="34" y="34" textAnchor="middle" dominantBaseline="central" className="display num" fontSize="22" fill="var(--ink)">
         {value}
       </text>
     </svg>
@@ -95,7 +95,7 @@ function List({ title, items, color }: { title: string; items: string[]; color: 
         <span className="inline-block h-2 w-2 rounded-full" style={{ background: color }} aria-hidden="true" />
         {title}
       </h3>
-      <ul className="space-y-1 text-sm text-chalk-dim">
+      <ul className="space-y-1 text-sm text-ink-soft">
         {items.map((i) => (
           <li key={i}>{i}</li>
         ))}

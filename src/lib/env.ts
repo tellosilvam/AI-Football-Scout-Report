@@ -31,7 +31,9 @@ export const config = {
   },
   /** Vercel Marketplace Upstash exposes KV_REST_API_*; plain Upstash uses UPSTASH_REDIS_REST_*. */
   get redisUrl() {
-    return env('UPSTASH_REDIS_REST_URL') ?? env('KV_REST_API_URL');
+    const url = env('UPSTASH_REDIS_REST_URL') ?? env('KV_REST_API_URL');
+    // `vercel env pull` writes "[SENSITIVE]" placeholders for integration secrets: treat as unset.
+    return url?.startsWith('https://') ? url : undefined;
   },
   get redisToken() {
     return env('UPSTASH_REDIS_REST_TOKEN') ?? env('KV_REST_API_TOKEN');

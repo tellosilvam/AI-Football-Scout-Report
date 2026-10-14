@@ -30,7 +30,7 @@ export default function ShortlistView({ lang, strings, positions, removeLabel }:
   if (!items.length)
     return (
       <div className="py-6">
-        <p className="text-chalk-dim">{strings.empty}</p>
+        <p className="text-ink-soft">{strings.empty}</p>
         <a href={`/${lang}`} className="btn btn-primary mt-6">
           AI Scout
         </a>
@@ -46,15 +46,15 @@ export default function ShortlistView({ lang, strings, positions, removeLabel }:
         <button type="button" className="btn" onClick={() => clearShortlist()}>
           {strings.clear}
         </button>
-        <span className="ml-auto text-sm text-chalk-faint">{strings.note}</span>
+        <span className="ml-auto text-sm text-ink-faint">{strings.note}</span>
       </div>
       <ul className="mt-6 divide-y divide-line border-y border-line">
         {items.map((i) => (
           <li key={i.id} className="flex items-center gap-3 py-3">
-            <img src={i.photo} alt="" width={48} height={48} loading="lazy" className="h-12 w-12 rounded bg-turf-2 object-cover" />
-            <a href={`/${lang}/player/${i.slug}`} className="min-w-0 flex-1 hover:text-flood">
+            <img src={i.photo} alt="" width={48} height={48} loading="lazy" className="h-12 w-12 rounded bg-wash object-cover" />
+            <a href={`/${lang}/player/${i.slug}`} className="min-w-0 flex-1 hover:text-hi">
               <span className="block truncate font-semibold">{i.name}</span>
-              <span className="block truncate text-sm text-chalk-faint">
+              <span className="block truncate text-sm text-ink-faint">
                 {[i.position ? positions[i.position as keyof typeof positions] : null, i.team, i.league].filter(Boolean).join(', ')}
               </span>
             </a>

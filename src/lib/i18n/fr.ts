@@ -8,6 +8,13 @@ export const fr: Dict = {
   },
   nav: { search: 'Rechercher', discover: 'Découvrir', compare: 'Comparer', shortlist: 'Liste', stats: 'Stats', how: 'Fonctionnement' },
   landing: {
+    scoreboard: 'Percentile moyen par catégorie',
+    stepsTitle: 'Des statistiques au verdict',
+    proofTitle: 'Un scout qui vérifie son propre travail',
+    proofLead: "Chaque chiffre d'un rapport est comparé aux données source avant affichage. Si l'un ne correspond pas, le rapport est réécrit.",
+    proof: { verified: 'rapports dont tous les chiffres sont vérifiés', firstTry: 'validés du premier coup', avgTime: "temps moyen d'un rapport complet", tools: 'outils que le scout peut utiliser' },
+    leagueStatus: { ready: '{n} joueurs', loading: 'Chargement, {done} sur {total} équipes', next: 'Le prochain', queued: 'En attente' },
+    orDiscover: 'Ou décrivez avec vos mots le joueur recherché.',
     kicker: 'Dossier de scouting · Données de saison · Analyse IA',
     title: "Analysez n'importe quel\njoueur en quelques secondes.",
     lead: "Des statistiques réelles de 7 championnats, des percentiles par poste et un scout IA qui ne cite que des chiffres qu'il peut prouver.",
@@ -42,6 +49,11 @@ export const fr: Dict = {
     error: 'La recherche est indisponible pour le moment.',
   },
   player: {
+    aiGrade: "Note de l'IA",
+    avgPercentile: 'percentile moyen',
+    rateNote: 'Par 90 minutes sauf pour les taux.',
+    legend: 'Rouge 67 et plus, gris de 34 à 66, bleu 33 et moins.',
+    sectionsLabel: 'Sections du dossier',
     season: 'Saison',
     minutes: 'Minutes',
     apps: 'Matchs',
@@ -113,6 +125,7 @@ export const fr: Dict = {
     match: 'similarité',
   },
   chat: {
+    askLead: 'Il peut consulter un joueur, en comparer deux et chercher dans les championnats avec des filtres avant de répondre.',
     title: 'Interrogez le scout',
     intro: "J'ai étudié la saison de {name}. Posez-moi vos questions : je peux consulter, comparer et rechercher d'autres joueurs.",
     placeholder: 'Une question sur ce joueur…',

@@ -54,3 +54,37 @@ export function dataErrorMessage(e: unknown, lang: Lang) {
   }
   return d.errors.generic;
 }
+
+export interface CategoryScore {
+  key: string;
+  name: string;
+  value: number | null;
+  metrics: string;
+}
+
+/** Average percentile per category: the dossier's "scoreboard". */
+export function categoryScores(slices: PizzaSlice[]): CategoryScore[] {
+  const order: string[] = [];
+  const by = new Map<string, PizzaSlice[]>();
+  for (const s of slices) {
+    if (!by.has(s.category)) {
+      by.set(s.category, []);
+      order.push(s.category);
+    }
+    by.get(s.category)!.push(s);
+  }
+  return order.map((key) => {
+    const rows = by.get(key)!;
+    const pcts = rows.map((r) => r.percentile).filter((p): p is number => p !== null);
+    return {
+      key,
+      name: rows[0].categoryLabel,
+      value: pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : null,
+      metrics: rows.map((r) => r.label.toLowerCase()).join(', '),
+    };
+  });
+}
+
+/** Percentile band → CSS colour token (same thresholds as the chart). */
+export const bandVar = (p: number | null) =>
+  p === null ? 'var(--line)' : p >= 67 ? 'var(--hi)' : p >= 34 ? 'var(--mid)' : 'var(--lo)';

@@ -8,6 +8,13 @@ export const es: Dict = {
   },
   nav: { search: 'Buscar', discover: 'Descubrir', compare: 'Comparar', shortlist: 'Lista', stats: 'Estadísticas', how: 'Cómo funciona' },
   landing: {
+    scoreboard: 'Percentil promedio por categoría',
+    stepsTitle: 'De las estadísticas a un veredicto',
+    proofTitle: 'Un scout que revisa su propio trabajo',
+    proofLead: 'Cada número de un informe se contrasta con los datos de origen antes de que lo veas. Si alguno no coincide, el informe se vuelve a escribir.',
+    proof: { verified: 'informes con todas las cifras verificadas', firstTry: 'aprobados al primer intento', avgTime: 'tiempo promedio de un informe completo', tools: 'herramientas que el scout puede usar en el chat' },
+    leagueStatus: { ready: '{n} jugadores', loading: 'Cargando, {done} de {total} equipos', next: 'La siguiente', queued: 'En cola' },
+    orDiscover: 'O describe con tus palabras el jugador que necesitas.',
     kicker: 'Dossier de scouting · Datos de temporada · Análisis con IA',
     title: 'Analiza a cualquier\njugador en segundos.',
     lead: 'Estadísticas reales de 7 ligas, percentiles frente a jugadores de su posición y un scout con IA que solo cita números que puede demostrar.',
@@ -42,6 +49,11 @@ export const es: Dict = {
     error: 'La búsqueda no está disponible ahora.',
   },
   player: {
+    aiGrade: 'Nota de la IA',
+    avgPercentile: 'percentil promedio',
+    rateNote: 'Por 90 minutos salvo que se indique un porcentaje.',
+    legend: 'Rojo 67 o más, gris de 34 a 66, azul 33 o menos.',
+    sectionsLabel: 'Secciones del dossier',
     season: 'Temporada',
     minutes: 'Minutos',
     apps: 'Partidos',
@@ -113,6 +125,7 @@ export const es: Dict = {
     match: 'similitud',
   },
   chat: {
+    askLead: 'Puede consultar cualquier jugador, comparar dos y buscar en las ligas con filtros antes de responder.',
     title: 'Pregúntale al scout',
     intro: 'Estudié la temporada de {name}. Pregúntame lo que quieras: puedo consultar, comparar y buscar otros jugadores.',
     placeholder: 'Pregunta sobre este jugador…',

@@ -1,15 +1,17 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import PercentilePanel from '../../../components/PercentilePanel';
+import PizzaChart from '../../../components/PizzaChart';
 import ReportPanel from '../../../components/ReportPanel';
 import ScoutChat from '../../../components/ScoutChat';
 import FitPanel from '../../../components/FitPanel';
 import SimilarPanel from '../../../components/SimilarPanel';
 import PlayerActions from '../../../components/PlayerActions';
+import GradeBadge from '../../../components/GradeBadge';
 import { isLang, t } from '../../../lib/i18n';
 import { getPlayerProfile } from '../../../lib/football/service';
 import { idFromSlug, slugify } from '../../../lib/football/normalize';
-import { dataErrorMessage, peerNote, poolWarning, seasonText, slicesFor } from '../../../lib/view';
+import { getCachedReport } from '../../../lib/ai/report';
+import { bandVar, categoryScores, dataErrorMessage, peerNote, poolWarning, seasonText, slicesFor } from '../../../lib/view';
 import type { PlayerProfile } from '../../../lib/football/types';
 
 export const prerender = false;
@@ -40,19 +42,31 @@ if (profile) {
 
 const slices = profile ? slicesFor(profile, lang) : [];
 const metricLabels = Object.fromEntries(slices.map((s) => [s.key, s.label]));
+const scores = categoryScores(slices);
+const groups = scores.map((c) => ({ ...c, rows: slices.filter((s) => s.category === c.key) }));
+const cached = profile ? await getCachedReport(profile, lang, 'analyst').catch(() => null) : null;
+const warning = profile ? poolWarning(profile, lang) : null;
 const facts = profile
   ? [
-      { label: d.player.age, value: profile.age ? `${profile.age}` : '—' },
       { label: d.player.minutes, value: profile.minutes.toLocaleString(lang) },
-      { label: d.player.apps, value: `${profile.appearances}`, sub: `${profile.starts} ${d.player.starts}` },
+      { label: d.player.apps, value: `${profile.appearances}` },
+      { label: d.player.starts.charAt(0).toUpperCase() + d.player.starts.slice(1), value: `${profile.starts}` },
       { label: d.player.goals, value: `${profile.totals.goals}` },
       { label: d.player.assists, value: `${profile.totals.assists}` },
       { label: d.player.rating, value: profile.rating ? profile.rating.toFixed(2) : '—' },
     ]
   : [];
+const sections = [
+  { id: 'percentiles', label: d.player.percentiles },
+  { id: 'report', label: d.report.title },
+  { id: 'fit', label: d.fit.title },
+  { id: 'similar', label: d.similar.title },
+  { id: 'ask', label: d.chat.title },
+];
 const description = profile
   ? `${profile.fullName}: ${profile.position ? d.positions[profile.position] : ''}, ${profile.team?.name ?? ''}, ${profile.league?.name ?? ''} ${seasonText(profile)}. ${d.meta.description}`
   : undefined;
+const fmtValue = (v: number | null, unit: string) => (v === null ? '—' : unit === 'pct' ? `${v.toFixed(1)}%` : v.toFixed(2));
 ---
 
 <Base lang={lang} title={profile?.name ?? d.player.notFound} description={description} ogImage={profile ? `/api/og/${profile.id}.png?lang=${lang}` : undefined}>
@@ -60,51 +74,84 @@ const description = profile
     !profile ? (
       <div class="wrap py-24">
         <h1 class="display text-6xl">{d.player.notFound}</h1>
-        <p class="mt-4 max-w-xl text-chalk-dim">{errorMessage ?? d.player.notFoundBody}</p>
+        <p class="mt-4 max-w-xl text-ink-soft">{errorMessage ?? d.player.notFoundBody}</p>
         <a href={`/${lang}`} class="btn btn-primary mt-8">
           {d.landing.searchCta}
         </a>
       </div>
     ) : (
       <article>
-        {/* Identity strip */}
-        <header class="border-b border-line">
-          <div class="wrap grid gap-6 py-8 md:grid-cols-[auto_1fr] md:items-end md:py-12">
-            <div class="relative h-[132px] w-[132px] shrink-0 overflow-hidden rounded-md border border-line bg-turf md:h-[168px] md:w-[168px]">
+        {/* Identity band */}
+        <header class="wrap pt-10 md:pt-12">
+          <div class="grid items-end gap-6 md:grid-cols-[auto_minmax(0,1fr)] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-9">
+            <div class="relative h-[108px] w-[108px] shrink-0 overflow-hidden rounded-[var(--radius)] border border-line bg-paper md:h-[168px] md:w-[168px]">
               <img src={profile.photo} alt={profile.name} width="168" height="168" class="h-full w-full object-cover" />
               {profile.team?.logo && (
-                <img src={profile.team.logo} alt="" width="40" height="40" class="absolute bottom-2 right-2 h-10 w-10 rounded bg-pitch/80 object-contain p-1" />
+                <img src={profile.team.logo} alt="" width="36" height="36" class="absolute bottom-2 right-2 h-9 w-9 rounded-md bg-paper/90 object-contain p-1" />
               )}
             </div>
             <div class="min-w-0">
-              <p class="text-chalk-dim">
-                {profile.position && <span class="font-semibold text-flood">{d.positions[profile.position]}</span>}
-                <span class="mx-2 text-chalk-faint" aria-hidden="true">/</span>
-                {profile.team?.name}
-                <span class="mx-2 text-chalk-faint" aria-hidden="true">/</span>
-                {profile.league?.name} {seasonText(profile)}
+              <p class="text-lg text-ink-soft">
+                {profile.position && <span class="font-bold text-hi">{d.positions[profile.position]}</span>}
+                {profile.position && ', '}
+                {profile.team?.name}, {profile.league?.name} {seasonText(profile)}
               </p>
-              <h1 class="display mt-2 break-words text-[clamp(3.4rem,11vw,8.5rem)]">{profile.name}</h1>
-              {profile.fullName !== profile.name && <p class="mt-2 text-chalk-faint">{profile.fullName}{profile.nationality ? `, ${profile.nationality}` : ''}</p>}
+              <h1 class="display mt-2 break-words text-[clamp(3.6rem,10vw,9.5rem)]">{profile.name}</h1>
+              <p class="mt-3 text-ink-faint">
+                {[profile.fullName !== profile.name ? profile.fullName : null, profile.nationality, profile.age].filter(Boolean).join(', ')}
+              </p>
+            </div>
+            <div class="md:col-span-2 lg:col-span-1 lg:pb-2">
+              <GradeBadge client:load initial={cached?.report.overallRating ?? null} role={cached?.report.idealRole ?? null} label={d.player.aiGrade} />
             </div>
           </div>
-          <div class="wrap pb-6">
-            <dl class="grid grid-cols-3 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-6">
-              {
-                facts.map((f) => (
-                  <div class="bg-pitch px-4 py-3">
-                    <dt class="text-xs text-chalk-faint">{f.label}</dt>
-                    <dd class="display num mt-1 text-[2.1rem]">
-                      {f.value}
-                      {f.sub && <span class="ml-1 font-sans text-xs font-normal text-chalk-faint" style="font-variation-settings: 'wdth' 100">{f.sub}</span>}
+
+          <dl class="mt-9 grid grid-cols-3 border-y border-line md:grid-cols-6">
+            {
+              facts.map((f) => (
+                <div class="py-4">
+                  <dt class="text-sm text-ink-faint">{f.label}</dt>
+                  <dd class="display num m-0 mt-1 text-[clamp(2rem,3.4vw,2.85rem)] leading-none">{f.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          {
+            scores.length > 0 && (
+              <dl class="grid grid-cols-2 md:grid-cols-4">
+                {scores.map((c) => (
+                  <div class="flex items-baseline gap-3 py-5 pr-4">
+                    <dd class="display num m-0 text-[clamp(3.25rem,6vw,5.25rem)]" style={`color: ${bandVar(c.value)}`}>
+                      {c.value ?? '—'}
                     </dd>
+                    <dt class="flex flex-col">
+                      <span class="text-lg font-bold">{c.name}</span>
+                      <span class="text-[0.8rem] text-ink-faint">{d.player.avgPercentile}</span>
+                    </dt>
                   </div>
+                ))}
+              </dl>
+            )
+          }
+        </header>
+
+        {/* Section bar */}
+        <nav aria-label={d.player.sectionsLabel} class="no-print sticky top-0 z-30 mt-4 border-y border-line bg-canvas/95 backdrop-blur">
+          <div class="wrap flex flex-wrap items-center gap-x-1 gap-y-2 py-1">
+            <div class="-mx-2 flex overflow-x-auto">
+              {
+                sections.map((s) => (
+                  <a href={`#${s.id}`} class="whitespace-nowrap rounded-full px-3.5 py-2.5 text-[0.95rem] font-medium text-ink-soft hover:text-ink">
+                    {s.label}
+                  </a>
                 ))
               }
-            </dl>
-            <div class="mt-5">
+            </div>
+            <div class="ml-auto py-1">
               <PlayerActions
                 client:load
+                compact
                 item={{
                   id: profile.id,
                   slug: slugify(profile.name, profile.id),
@@ -120,30 +167,82 @@ const description = profile
               />
             </div>
           </div>
-        </header>
+        </nav>
 
-        {/* Dossier body */}
-        <div class="wrap mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <PercentilePanel
-            client:load
-            slices={slices}
-            title={d.player.percentiles}
-            note={peerNote(profile, lang)}
-            warning={poolWarning(profile, lang)}
-            centerValue={profile.rating ? profile.rating.toFixed(1) : undefined}
-            centerLabel={profile.rating ? d.player.rating : undefined}
-            strings={{ ...d.player, metric: d.compare.metric }}
-          />
-          <ReportPanel client:load playerId={profile.id} season={profile.season} lang={lang} playerName={profile.name} metricLabels={metricLabels} strings={d.report} />
-        </div>
+        {/* Percentiles */}
+        <section id="percentiles" class="wrap grid items-start gap-12 py-14 md:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div>
+            {slices.some((s) => s.percentile !== null) ? (
+              <PizzaChart
+                slices={slices}
+                title={d.player.percentiles}
+                centerValue={profile.rating ? profile.rating.toFixed(1) : undefined}
+                centerLabel={profile.rating ? d.player.rating : undefined}
+                per90Label={d.player.per90}
+              />
+            ) : (
+              <div class="flex aspect-square items-center justify-center rounded-[var(--radius)] border border-dashed border-line p-8 text-center text-ink-soft">
+                {warning}
+              </div>
+            )}
+            {peerNote(profile, lang) && <p class="mt-2 text-[0.95rem] text-ink-faint">{peerNote(profile, lang)}</p>}
+          </div>
 
-        <div class="wrap mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <ScoutChat client:visible playerId={profile.id} season={profile.season} lang={lang} playerName={profile.name} strings={d.chat} />
-          <div class="grid content-start gap-6">
+          <div>
+            <h2 class="section-title">{d.player.percentiles}</h2>
+            <p class="mt-3 text-ink-soft">{d.player.rateNote}</p>
+            {warning && <p class="mt-4 rounded-[var(--radius)] border border-line bg-paper px-4 py-3 text-sm text-ink-soft">{warning}</p>}
+            {groups.map((g) => (
+              <div class="mt-7">
+                <h3 class="text-sm font-semibold text-ink-faint">{g.name}</h3>
+                <table class="mt-1 w-full border-collapse text-[0.98rem]">
+                  <tbody>
+                    {g.rows.map((m) => (
+                      <tr class="border-b border-wash">
+                        <th scope="row" class="py-2.5 pr-3 text-left font-normal">{m.label}</th>
+                        <td class="num w-[5rem] py-2.5 pr-4 text-right text-ink-soft">{fmtValue(m.value, m.unit)}</td>
+                        <td class="w-[45%] py-2.5" aria-hidden="true">
+                          <span class="block h-2.5 overflow-hidden rounded-full bg-wash">
+                            <span class="block h-full rounded-full" style={`width: ${Math.max(3, m.percentile ?? 0)}%; background: ${bandVar(m.percentile)}`} />
+                          </span>
+                        </td>
+                        <td class="num w-[3rem] py-2.5 text-right font-bold">{m.percentile ?? '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Report */}
+        <section id="report" class="border-y border-line bg-paper">
+          <div class="wrap py-14 md:py-20">
+            <ReportPanel client:load playerId={profile.id} season={profile.season} lang={lang} playerName={profile.name} metricLabels={metricLabels} strings={d.report} />
+          </div>
+        </section>
+
+        {/* Fit + similar */}
+        <section class="wrap grid gap-14 py-14 md:py-20 lg:grid-cols-2">
+          <div id="fit">
             <FitPanel client:visible playerId={profile.id} season={profile.season} lang={lang} strings={d.fit} errorText={d.report.error} />
+          </div>
+          <div id="similar">
             <SimilarPanel client:visible playerId={profile.id} season={profile.season} lang={lang} strings={d.similar} yearsLabel={d.player.years} />
           </div>
-        </div>
+        </section>
+
+        {/* Ask */}
+        <section id="ask" class="border-t border-line">
+          <div class="wrap grid gap-10 py-14 md:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div>
+              <h2 class="section-title">{d.chat.title}</h2>
+              <p class="mt-4 max-w-md text-ink-soft">{d.chat.askLead}</p>
+            </div>
+            <ScoutChat client:visible playerId={profile.id} season={profile.season} lang={lang} playerName={profile.name} strings={d.chat} />
+          </div>
+        </section>
       </article>
     )
   }
