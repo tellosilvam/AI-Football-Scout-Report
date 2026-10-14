@@ -3,8 +3,9 @@
 /*
  * Terrace — design tokens
  * Daylight concrete by default, floodlit-night variant for the theme toggle.
- * Percentiles use a diverging scale: kit red (high) · grey (middle) · away blue (low),
- * which also differ in lightness so they read without colour.
+ * Percentiles use a good/neutral/bad scale: green (67+) · grey (34–66) · red (≤33).
+ * Green is darkest and grey lightest, so the bands also read by lightness alone.
+ * Red and green are data colours only; UI accents stay ink.
  * One family (Bricolage Grotesque): narrow and heavy for display, regular for text.
  */
 
@@ -16,13 +17,12 @@
   --ink: #15181b;
   --ink-soft: #4e545a;
   --ink-faint: #5f656b;
-  --hi: #d62828;
-  --hi-ink: #ffffff;
-  --mid: #9aa0a6;
-  --lo: #2b59c3;
+  --good: #0b6b35;
+  --mid: #a0a6ab;
+  --bad: #dc3d33;
   --btn: #15181b;
   --btn-ink: #ffffff;
-  --focus: #2b59c3;
+  --focus: #15181b;
 
   --font: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --radius: 12px;
@@ -41,13 +41,12 @@
   --ink: #eef0ea;
   --ink-soft: #b3b9bf;
   --ink-faint: #9aa1a7;
-  --hi: #ff5a52;
-  --hi-ink: #121518;
+  --good: #3fbf73;
   --mid: #7f868c;
-  --lo: #6b95ff;
+  --bad: #ff6b61;
   --btn: #eef0ea;
   --btn-ink: #121518;
-  --focus: #6b95ff;
+  --focus: #eef0ea;
   color-scheme: dark;
 }
 
@@ -59,10 +58,9 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-ink-faint: var(--ink-faint);
-  --color-hi: var(--hi);
-  --color-hi-ink: var(--hi-ink);
+  --color-good: var(--good);
   --color-mid: var(--mid);
-  --color-lo: var(--lo);
+  --color-bad: var(--bad);
   --font-sans: var(--font);
 }
 
@@ -93,6 +91,17 @@ body {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Theme toggle shows the theme you'd switch to. */
+.when-dark {
+  display: none;
+}
+:root[data-theme="dark"] .when-dark {
+  display: inline;
+}
+:root[data-theme="dark"] .when-light {
+  display: none;
 }
 
 @layer components {

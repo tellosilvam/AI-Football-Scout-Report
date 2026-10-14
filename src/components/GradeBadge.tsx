@@ -24,7 +24,7 @@ export default function GradeBadge({ initial, role, label }: Props) {
   return (
     <a href="#report" className="flex flex-col items-start no-underline lg:items-end" aria-label={grade ? `${label}: ${grade}` : label}>
       <span className="text-sm text-ink-faint">{label}</span>
-      <span className="display num text-[clamp(4.5rem,9vw,7.5rem)] leading-[0.85]" style={{ color: grade ? 'var(--hi)' : 'var(--line)' }}>
+      <span className="display num text-[clamp(4.5rem,9vw,7.5rem)] leading-[0.85]" style={{ color: grade === null ? 'var(--line)' : grade >= 67 ? 'var(--good)' : grade >= 34 ? 'var(--mid)' : 'var(--bad)' }}>
         {grade ?? '—'}
       </span>
       {roleText && <span className="mt-1 text-sm text-ink-soft">{roleText}</span>}

@@ -5,6 +5,7 @@ import { readStats } from '../../lib/usage';
 import { getAllPools } from '../../lib/football/pool';
 import { getQuota } from '../../lib/football/client';
 import { leagueById, seasonLabel } from '../../lib/football/leagues';
+import { ArrowLeftRight, Cpu, Database, FileText, Gauge, MessageCircle, Sparkles, Zap } from 'lucide-react';
 
 export const prerender = false;
 
@@ -16,14 +17,14 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=300');
 const nf = new Intl.NumberFormat(lang);
 
 const tiles = [
-  { label: d.stats.reports, value: stats.reports },
-  { label: d.stats.cached, value: stats.reports_cached },
-  { label: d.stats.chats, value: stats.chat_messages },
-  { label: d.stats.compares, value: stats.compares },
-  { label: d.stats.discover, value: stats.discover_queries },
-  { label: d.stats.tokens, value: stats.input_tokens + stats.output_tokens },
-  { label: d.stats.players, value: pools.reduce((n, p) => n + p.players.length, 0) },
-  { label: d.stats.quota, value: quota?.dailyRemaining ?? null },
+  { label: d.stats.reports, value: stats.reports, Icon: FileText },
+  { label: d.stats.cached, value: stats.reports_cached, Icon: Zap },
+  { label: d.stats.chats, value: stats.chat_messages, Icon: MessageCircle },
+  { label: d.stats.compares, value: stats.compares, Icon: ArrowLeftRight },
+  { label: d.stats.discover, value: stats.discover_queries, Icon: Sparkles },
+  { label: d.stats.tokens, value: stats.input_tokens + stats.output_tokens, Icon: Cpu },
+  { label: d.stats.players, value: pools.reduce((n, p) => n + p.players.length, 0), Icon: Database },
+  { label: d.stats.quota, value: quota?.dailyRemaining ?? null, Icon: Gauge },
 ];
 ---
 
@@ -34,7 +35,10 @@ const tiles = [
       {
         tiles.map((tile) => (
           <div class="bg-canvas p-5">
-            <dt class="text-sm text-ink-faint">{tile.label}</dt>
+            <dt class="inline-flex items-center gap-1.5 text-sm text-ink-faint">
+              <tile.Icon size={15} aria-hidden="true" />
+              {tile.label}
+            </dt>
             <dd class="display num mt-2 text-5xl">{tile.value === null ? '—' : nf.format(tile.value)}</dd>
           </div>
         ))

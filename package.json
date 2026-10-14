@@ -26,6 +26,7 @@
     "@upstash/redis": "^1.39.0",
     "ai": "^7.0.138",
     "astro": "^7.3.8",
+    "lucide-react": "^1.56.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "satori": "^0.52.0",

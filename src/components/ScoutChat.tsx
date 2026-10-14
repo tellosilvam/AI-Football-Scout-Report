@@ -1,4 +1,6 @@
 import { useChat } from '@ai-sdk/react';
+import { Check, LoaderCircle, MessageCircle, Send, TriangleAlert, Wrench } from 'lucide-react';
+import { TOOL_ICON } from './icons';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dict } from '../lib/i18n';
@@ -72,11 +74,12 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
                 const done = 'state' in part && part.state === 'output-available';
                 return (
                   <span key={i} className="chip mb-2 mr-1.5 text-xs">
-                    <span
-                      className={`inline-block h-1.5 w-1.5 rounded-full ${done ? 'bg-hi' : 'animate-pulse bg-ink-faint'}`}
-                      aria-hidden="true"
-                    />
+                    {(() => {
+                      const Icon = TOOL_ICON[name] ?? Wrench;
+                      return <Icon size={14} className={done ? '' : 'animate-pulse'} aria-hidden="true" />;
+                    })()}
                     {strings.tools[name] ?? name}
+                    {done && <Check size={14} style={{ color: 'var(--good)' }} aria-hidden="true" />}
                   </span>
                 );
               }
@@ -87,16 +90,25 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
 
         {status === 'submitted' && (
           <Bubble role="assistant">
-            <p className="text-ink-faint">{strings.thinking}</p>
+            <p className="flex items-center gap-2 text-ink-faint">
+              <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />
+              {strings.thinking}
+            </p>
           </Bubble>
         )}
-        {error && <p className="text-sm text-lo">{limitHit ? strings.limit : strings.error}</p>}
+        {error && (
+          <p className="flex items-center gap-2 text-sm text-bad">
+            <TriangleAlert size={16} aria-hidden="true" />
+            {limitHit ? strings.limit : strings.error}
+          </p>
+        )}
       </div>
 
       {messages.length < 2 && (
         <div className="flex flex-wrap gap-2 px-5 pb-4 md:px-7">
           {strings.suggestions.map((s) => (
             <button key={s} type="button" className="chip cursor-pointer whitespace-normal text-left hover:text-ink" onClick={() => ask(fill(s))} disabled={busy}>
+              <MessageCircle size={14} className="shrink-0" aria-hidden="true" />
               {fill(s)}
             </button>
           ))}
@@ -123,6 +135,7 @@ export default function ScoutChat({ playerId, season, lang, playerName, strings 
           autoComplete="off"
         />
         <button type="submit" className="btn btn-primary shrink-0" disabled={busy || !input.trim()}>
+          <Send size={16} aria-hidden="true" />
           {strings.send}
         </button>
       </form>

@@ -23,9 +23,9 @@ const R0 = 44; // hole
 const R1 = 222; // 100th percentile
 const RING_LABEL = 248;
 
-/** Percentile band → fill. Low = card red, middle = neutral, high = floodlight. */
+/** Percentile band → fill: green good (67+), grey middle, red bad (≤33). */
 export const bandColor = (p: number | null) =>
-  p === null ? 'var(--line)' : p >= 67 ? 'var(--hi)' : p >= 34 ? 'var(--mid)' : 'var(--lo)';
+  p === null ? 'var(--line)' : p >= 67 ? 'var(--good)' : p >= 34 ? 'var(--mid)' : 'var(--bad)';
 
 function polar(r: number, a: number) {
   return [C + r * Math.cos(a), C + r * Math.sin(a)] as const;
@@ -142,9 +142,9 @@ export default function PizzaChart({ slices, title, centerValue, centerLabel, pe
           <span key={g.label}>{g.label}</span>
         ))}
         <span className="ml-auto flex items-center gap-3 text-ink-faint">
-          <Swatch color="var(--lo)" label="0–33" />
+          <Swatch color="var(--bad)" label="0–33" />
           <Swatch color="var(--mid)" label="34–66" />
-          <Swatch color="var(--hi)" label="67–100" />
+          <Swatch color="var(--good)" label="67–100" />
         </span>
       </figcaption>
     </figure>

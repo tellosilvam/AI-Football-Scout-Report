@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ThumbsDown, ThumbsUp, TriangleAlert } from 'lucide-react';
+import { STYLE_ICON } from './icons';
 import type { FitReport, TacticalStyle } from '../lib/ai/schema';
 import type { Dict } from '../lib/i18n';
 
@@ -39,6 +41,10 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
       <div className="no-print mt-3 flex flex-wrap gap-1.5" role="group" aria-label={strings.pick}>
         {(Object.keys(strings.styles) as TacticalStyle[]).map((s) => (
           <button key={s} type="button" className="chip cursor-pointer" aria-pressed={style === s} onClick={() => run(s)} disabled={state.loading}>
+            {(() => {
+              const Icon = STYLE_ICON[s];
+              return Icon ? <Icon size={15} aria-hidden="true" /> : null;
+            })()}
             {strings.styles[s]}
           </button>
         ))}
@@ -46,7 +52,12 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
 
       <div aria-live="polite" className="mt-4">
         {state.loading && <div className="skeleton h-28" aria-hidden="true" />}
-        {state.error && <p className="text-sm text-ink-soft">{errorText}</p>}
+        {state.error && (
+          <p className="flex items-center gap-2 text-sm text-ink-soft">
+            <TriangleAlert size={16} aria-hidden="true" />
+            {errorText}
+          </p>
+        )}
         {state.data && (
           <div>
             <div className="flex items-center gap-4">
@@ -54,8 +65,8 @@ export default function FitPanel({ playerId, season, lang, strings, errorText }:
               <p className="text-sm leading-relaxed">{state.data.summary}</p>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <List title={strings.pros} items={state.data.pros} color="var(--hi)" />
-              <List title={strings.cons} items={state.data.cons} color="var(--lo)" />
+              <List title={strings.pros} items={state.data.pros} color="var(--good)" />
+              <List title={strings.cons} items={state.data.cons} color="var(--bad)" />
             </div>
           </div>
         )}
@@ -75,7 +86,7 @@ function Gauge({ value }: { value: number }) {
         cy="34"
         r={r}
         fill="none"
-        stroke="var(--hi)"
+        stroke={value >= 67 ? 'var(--good)' : value >= 34 ? 'var(--mid)' : 'var(--bad)'}
         strokeWidth="6"
         strokeDasharray={`${(c * value) / 100} ${c}`}
         strokeLinecap="round"
@@ -89,10 +100,11 @@ function Gauge({ value }: { value: number }) {
 }
 
 function List({ title, items, color }: { title: string; items: string[]; color: string }) {
+  const Icon = color === 'var(--good)' ? ThumbsUp : ThumbsDown;
   return (
     <div>
       <h3 className="mb-1.5 flex items-center gap-2 text-sm font-semibold">
-        <span className="inline-block h-2 w-2 rounded-full" style={{ background: color }} aria-hidden="true" />
+        <Icon size={16} style={{ color }} aria-hidden="true" />
         {title}
       </h3>
       <ul className="space-y-1 text-sm text-ink-soft">

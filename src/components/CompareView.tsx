@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ArrowLeftRight, Info, Plus, TriangleAlert, Trophy, UserRound } from 'lucide-react';
 import type { CompareVerdict } from '../lib/ai/schema';
 import type { PlayerProfile, PlayerSummary } from '../lib/football/types';
 import type { Dict } from '../lib/i18n';
@@ -54,13 +55,28 @@ export default function CompareView({ lang, initialA, initialB, strings, search,
       </div>
 
       <div aria-live="polite" className="mt-8">
-        {(!a || !b) && <p className="text-ink-soft">{strings.empty}</p>}
+        {(!a || !b) && (
+          <p className="flex items-center gap-2 text-ink-soft">
+            <ArrowLeftRight size={18} aria-hidden="true" />
+            {strings.empty}
+          </p>
+        )}
         {state === 'loading' && <div className="skeleton h-96" aria-hidden="true" />}
-        {state === 'error' && <p className="text-ink-soft">{errorText}</p>}
+        {state === 'error' && (
+          <p className="flex items-center gap-2 text-ink-soft">
+            <TriangleAlert size={18} aria-hidden="true" />
+            {errorText}
+          </p>
+        )}
         {data && (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <section className="sheet overflow-x-auto p-5 md:p-6" aria-label={strings.metric}>
-              {data.a.leagueId !== data.b.leagueId && <p className="mb-4 text-sm text-ink-faint">{strings.differentLeagues}</p>}
+              {data.a.leagueId !== data.b.leagueId && (
+                <p className="mb-4 flex items-center gap-2 text-sm text-ink-faint">
+                  <Info size={16} aria-hidden="true" />
+                  {strings.differentLeagues}
+                </p>
+              )}
               <table className="w-full min-w-[480px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-ink-faint">
@@ -95,7 +111,10 @@ export default function CompareView({ lang, initialA, initialB, strings, search,
             {data.verdict && (
               <section className="sheet p-5 md:p-6" aria-labelledby="verdict-title">
                 <h2 id="verdict-title" className="text-lg font-bold">
-                  {strings.verdict}
+                  <span className="inline-flex items-center gap-2">
+                    <Trophy size={18} aria-hidden="true" />
+                    {strings.verdict}
+                  </span>
                 </h2>
                 <p className="display mt-3 text-4xl">
                   {data.verdict.winner === 'a' ? data.a.name : data.verdict.winner === 'b' ? data.b.name : strings.depends}
@@ -129,9 +148,12 @@ function Picker({
 }) {
   return (
     <div className="sheet p-4">
-      <p className="mb-2 text-sm text-ink-faint">{label}</p>
+      <p className="mb-2 flex items-center gap-1.5 text-sm text-ink-faint">
+        <UserRound size={15} aria-hidden="true" />
+        {label}
+      </p>
       {player && (
-        <a href={`/${lang}/player/${slugOf(player)}`} className="mb-3 flex items-center gap-3 hover:text-hi">
+        <a href={`/${lang}/player/${slugOf(player)}`} className="mb-3 flex items-center gap-3 hover:underline">
           <img src={player.photo} alt="" width={48} height={48} className="h-12 w-12 rounded bg-wash object-cover" />
           <span>
             <span className="display block text-3xl">{player.name}</span>
@@ -162,7 +184,10 @@ function Edges({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
   return (
     <div>
-      <h3 className="mb-1.5 text-sm font-semibold text-ink-faint">{title}</h3>
+      <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-ink-faint">
+        <Plus size={15} aria-hidden="true" />
+        {title}
+      </h3>
       <ul className="list-disc space-y-1 pl-5 text-sm">
         {items.map((i) => (
           <li key={i}>{i}</li>
